@@ -1,0 +1,367 @@
+"use client";
+
+import { CropDialog } from "@/components/crop-dialog";
+import { Button } from "@/components/ui/button";
+import {
+  InputGroup,
+  InputGroupAddon,
+  InputGroupInput,
+  InputGroupText,
+} from "@/components/ui/input-group";
+import { uploadAvatar, upsertParticipant } from "@/lib/participants-queries";
+import { supabase } from "@/lib/supabase";
+import { TRIP_ID } from "@/lib/trip-data";
+import { cn } from "@/lib/utils";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { Camera, Cloud, Lock, MapPin, MessageSquare, User } from "lucide-react";
+import { useCallback, useEffect, useRef, useState } from "react";
+import { useForm } from "react-hook-form";
+import { z } from "zod";
+
+const PASSCODE = process.env.NEXT_PUBLIC_PASSCODE ?? "yonago2026";
+const AUTH_KEY = "travel_auth";
+const DEVICE_KEY = "travel_device_id";
+
+const CLOUDS = [
+  { id: 0, top: "7%",  dur: 58, del:   0, size: 96 },
+  { id: 1, top: "24%", dur: 78, del: -21, size: 72 },
+  { id: 2, top: "53%", dur: 66, del: -38, size: 84 },
+  { id: 3, top: "73%", dur: 88, del: -54, size: 64 },
+];
+
+const STARS = [
+  { id:  0, top:  "4%", left:  "7%", size: 2.5, dur: 2.5, del: 0.0 },
+  { id:  1, top: "11%", left: "22%", size: 1.5, dur: 3.2, del: 0.8 },
+  { id:  2, top: "18%", left: "54%", size: 3.0, dur: 2.8, del: 1.5 },
+  { id:  3, top:  "7%", left: "74%", size: 2.0, dur: 3.5, del: 0.3 },
+  { id:  4, top: "29%", left: "14%", size: 1.5, dur: 2.2, del: 2.1 },
+  { id:  5, top: "24%", left: "44%", size: 2.5, dur: 3.0, del: 1.2 },
+  { id:  6, top: "34%", left: "81%", size: 2.0, dur: 2.7, del: 0.6 },
+  { id:  7, top: "47%", left:  "4%", size: 1.5, dur: 3.3, del: 1.8 },
+  { id:  8, top: "54%", left: "36%", size: 3.0, dur: 2.1, del: 0.9 },
+  { id:  9, top: "50%", left: "64%", size: 2.0, dur: 2.9, del: 2.4 },
+  { id: 10, top: "62%", left: "19%", size: 2.5, dur: 3.1, del: 0.4 },
+  { id: 11, top: "67%", left: "51%", size: 1.5, dur: 2.6, del: 1.7 },
+  { id: 12, top: "71%", left: "86%", size: 2.0, dur: 3.4, del: 0.2 },
+  { id: 13, top: "79%", left:  "9%", size: 1.5, dur: 2.3, del: 2.8 },
+  { id: 14, top: "84%", left: "41%", size: 3.0, dur: 2.8, del: 1.1 },
+  { id: 15, top: "77%", left: "69%", size: 2.5, dur: 3.2, del: 0.7 },
+  { id: 16, top: "90%", left: "24%", size: 2.0, dur: 2.4, del: 1.9 },
+  { id: 17, top:  "2%", left: "91%", size: 1.5, dur: 3.6, del: 0.5 },
+  { id: 18, top: "40%", left: "93%", size: 2.0, dur: 2.7, del: 2.2 },
+  { id: 19, top: "59%", left: "47%", size: 1.5, dur: 3.0, del: 1.4 },
+];
+
+function getDeviceId(): string {
+  let id = localStorage.getItem(DEVICE_KEY);
+  if (!id) {
+    id = crypto.randomUUID();
+    localStorage.setItem(DEVICE_KEY, id);
+  }
+  return id;
+}
+
+const schema = z.object({
+  name: z.string().min(1, "이름을 입력해주세요"),
+  message: z.string().max(50, "50자 이하로 입력해주세요"),
+  passcode: z.string().min(1, "패스코드를 입력해주세요"),
+});
+type GateForm = z.infer<typeof schema>;
+
+function Field({
+  label,
+  optional,
+  icon: Icon,
+  error,
+  children,
+}: {
+  label: string;
+  optional?: boolean;
+  icon: React.ElementType;
+  error?: string;
+  children: React.ReactNode;
+}) {
+  return (
+    <div className="space-y-1.5">
+      <label className="text-sm font-medium">
+        {label}{" "}
+        {optional ? (
+          <span className="text-muted-foreground font-normal">(선택)</span>
+        ) : (
+          <span className="text-destructive">*</span>
+        )}
+      </label>
+      <InputGroup>
+        <InputGroupAddon>
+          <InputGroupText>
+            <Icon className="h-4 w-4" />
+          </InputGroupText>
+        </InputGroupAddon>
+        {children}
+      </InputGroup>
+      {error && <p className="text-destructive text-xs">{error}</p>}
+    </div>
+  );
+}
+
+export function PasscodeGate({ children }: { children: React.ReactNode }) {
+  const [verified, setVerified] = useState(false);
+  const [deviceId, setDeviceId] = useState("");
+
+  useEffect(() => {
+    const stored = localStorage.getItem(AUTH_KEY);
+    if (stored) {
+      setVerified(true);
+      setDeviceId(JSON.parse(stored).deviceId);
+    }
+  }, []);
+
+  useEffect(() => {
+    if (!verified || !deviceId) return;
+    const channel = supabase
+      .channel("kick_watch")
+      .on("postgres_changes", {
+        event: "DELETE",
+        schema: "public",
+        table: "participants",
+        filter: `trip_id=eq.${TRIP_ID}`,
+      }, (payload) => {
+        if ((payload.old as { id?: string }).id === deviceId) {
+          localStorage.removeItem(AUTH_KEY);
+          localStorage.removeItem(DEVICE_KEY);
+          setVerified(false);
+          setDeviceId("");
+        }
+      })
+      .subscribe();
+    return () => { supabase.removeChannel(channel); };
+  }, [verified, deviceId]);
+  const [isDark, setIsDark] = useState<boolean | null>(null);
+  useEffect(() => {
+    const mq = window.matchMedia("(prefers-color-scheme: dark)");
+    setIsDark(mq.matches);
+    const handler = (e: MediaQueryListEvent) => setIsDark(e.matches);
+    mq.addEventListener("change", handler);
+    return () => mq.removeEventListener("change", handler);
+  }, []);
+
+  const [passcodeError, setPasscodeError] = useState("");
+
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const [imageSrc, setImageSrc] = useState("");
+  const [cropOpen, setCropOpen] = useState(false);
+  const [croppedBlob, setCroppedBlob] = useState<Blob | null>(null);
+  const [previewUrl, setPreviewUrl] = useState("");
+
+  const {
+    register,
+    handleSubmit,
+    formState: { errors, isSubmitting },
+  } = useForm<GateForm>({
+    resolver: zodResolver(schema),
+    defaultValues: { name: "", message: "", passcode: "" },
+  });
+
+  const handleFileChange = useCallback(
+    (e: React.ChangeEvent<HTMLInputElement>) => {
+      const file = e.target.files?.[0];
+      if (!file) return;
+      const url = URL.createObjectURL(file);
+      setImageSrc(url);
+      setCropOpen(true);
+      e.target.value = "";
+    },
+    [],
+  );
+
+  const handleCropConfirm = useCallback(
+    (blob: Blob) => {
+      if (previewUrl) URL.revokeObjectURL(previewUrl);
+      setCroppedBlob(blob);
+      setPreviewUrl(URL.createObjectURL(blob));
+      setCropOpen(false);
+    },
+    [previewUrl],
+  );
+
+  const handleCropCancel = useCallback(() => {
+    URL.revokeObjectURL(imageSrc);
+    setImageSrc("");
+    setCropOpen(false);
+  }, [imageSrc]);
+
+  const onSubmit = async (data: GateForm) => {
+    if (data.passcode !== PASSCODE) {
+      setPasscodeError("패스코드가 올바르지 않습니다");
+      return;
+    }
+    setPasscodeError("");
+    const deviceId = getDeviceId();
+    let photoUrl = "";
+    if (croppedBlob) {
+      photoUrl = await uploadAvatar(deviceId, croppedBlob);
+    }
+    await upsertParticipant({
+      id: deviceId,
+      name: data.name,
+      photo_url: photoUrl,
+      message: data.message,
+    });
+    localStorage.setItem(
+      AUTH_KEY,
+      JSON.stringify({ name: data.name, deviceId }),
+    );
+    setVerified(true);
+  };
+
+  if (verified) return <>{children}</>;
+
+  return (
+    <div className="relative flex min-h-screen flex-col items-center justify-center overflow-hidden px-4 py-12">
+      <style>{`
+        @keyframes cloud-float {
+          0%   { transform: translateX(-180px) translateY(0px); }
+          25%  { transform: translateX(25vw)   translateY(-8px); }
+          50%  { transform: translateX(50vw)   translateY(0px); }
+          75%  { transform: translateX(75vw)   translateY(-8px); }
+          100% { transform: translateX(110vw)  translateY(0px); }
+        }
+        @keyframes star-twinkle {
+          0%, 100% { opacity: 0.15; transform: scale(1); }
+          50%      { opacity: 0.85; transform: scale(1.4); }
+        }
+      `}</style>
+      <div className="to-background dark:to-background absolute inset-0 bg-linear-to-b from-sky-200/50 via-sky-100/15 via-90% dark:from-sky-950/50 dark:via-sky-900/15 dark:via-90%" />
+      <div className="absolute -top-16 -right-16 h-56 w-56 rounded-full bg-sky-200/40 blur-3xl dark:bg-sky-700/20" />
+      <div className="absolute bottom-0 -left-12 h-40 w-40 rounded-full bg-indigo-100/50 blur-2xl dark:bg-indigo-900/20" />
+
+      {isDark === false && CLOUDS.map((c) => (
+        <div
+          key={c.id}
+          className="pointer-events-none absolute"
+          style={{ top: c.top, left: 0, animation: `cloud-float ${c.dur}s linear ${c.del}s infinite` }}
+        >
+          <Cloud
+            className="text-sky-400/50 dark:text-sky-300/25"
+            style={{ width: c.size, height: c.size }}
+          />
+        </div>
+      ))}
+
+      {isDark === true && STARS.map((s) => (
+        <div
+          key={s.id}
+          className="pointer-events-none absolute rounded-full bg-white/60 dark:bg-white"
+          style={{
+            top: s.top,
+            left: s.left,
+            width: s.size,
+            height: s.size,
+            animation: `star-twinkle ${s.dur}s ease-in-out ${s.del}s infinite`,
+          }}
+        />
+      ))}
+
+      <div className="relative z-10 w-full max-w-sm">
+        <div className="mb-8 text-center">
+          <p className="text-muted-foreground mb-2 inline-flex items-center gap-1.5 text-xs font-semibold tracking-[3px] uppercase">
+            <MapPin className="h-3 w-3" />
+            돗토리현 · 일본
+          </p>
+          <h1 className="text-3xl font-bold tracking-tight">
+            요나고 2박 3일 여행
+          </h1>
+          <p className="text-muted-foreground/70 mt-1 text-sm font-medium tracking-[4px] uppercase">
+            Yonago · Jun 2026
+          </p>
+        </div>
+
+        <div className="bg-background/80 rounded-2xl border p-6 shadow-xl backdrop-blur-sm">
+          <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+            {/* avatar upload */}
+            <div className="flex justify-center pb-2">
+              <button
+                type="button"
+                onClick={() => fileInputRef.current?.click()}
+                className={cn(
+                  "border-muted-foreground/30 relative h-20 w-20 overflow-hidden rounded-full border-2 border-dashed transition-colors hover:border-sky-400",
+                  previewUrl && "border-solid border-transparent",
+                )}
+              >
+                {previewUrl ? (
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img
+                    src={previewUrl}
+                    alt=""
+                    className="h-full w-full object-cover"
+                  />
+                ) : (
+                  <div className="text-muted-foreground flex h-full flex-col items-center justify-center gap-1">
+                    <Camera className="h-5 w-5" />
+                    <span className="text-[10px]">사진 선택</span>
+                  </div>
+                )}
+              </button>
+              <input
+                ref={fileInputRef}
+                type="file"
+                accept="image/jpeg,image/png,image/webp"
+                className="hidden"
+                onChange={handleFileChange}
+              />
+            </div>
+
+            <Field label="이름" icon={User} error={errors.name?.message}>
+              <InputGroupInput
+                {...register("name")}
+                placeholder="홍길동"
+                aria-invalid={!!errors.name}
+              />
+            </Field>
+
+            <Field
+              label="한마디"
+              optional
+              icon={MessageSquare}
+              error={errors.message?.message}
+            >
+              <InputGroupInput
+                {...register("message")}
+                placeholder="기대돼요!"
+                aria-invalid={!!errors.message}
+              />
+            </Field>
+
+            <div className="border-t pt-4">
+              <Field
+                label="패스코드"
+                icon={Lock}
+                error={passcodeError || errors.passcode?.message}
+              >
+                <InputGroupInput
+                  {...register("passcode", {
+                    onChange: () => setPasscodeError(""),
+                  })}
+                  type="password"
+                  placeholder="••••••••"
+                  aria-invalid={!!(errors.passcode || passcodeError)}
+                />
+              </Field>
+            </div>
+
+            <Button type="submit" className="w-full" disabled={isSubmitting}>
+              {isSubmitting ? "저장 중…" : "입장하기 →"}
+            </Button>
+          </form>
+        </div>
+      </div>
+
+      <CropDialog
+        open={cropOpen}
+        imageSrc={imageSrc}
+        onConfirm={handleCropConfirm}
+        onCancel={handleCropCancel}
+      />
+    </div>
+  );
+}
