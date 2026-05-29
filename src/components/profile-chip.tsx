@@ -13,9 +13,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { deleteAvatar, deleteParticipant, fetchParticipants } from "@/lib/participants-queries";
-
-const AUTH_KEY = "travel_auth";
-const DEVICE_KEY = "travel_device_id";
+import { AUTH_KEY, DEVICE_KEY } from "@/lib/constants";
 
 export function ProfileChip() {
   const stored = typeof window !== "undefined" ? localStorage.getItem(AUTH_KEY) : null;

@@ -1,14 +1,32 @@
 "use client";
 
+import { useState } from "react";
 import { Calendar, LogOut, MapPin, Plane } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import { ThemeToggle } from "./theme-toggle";
 import { ParticipantsStrip } from "./participants-strip";
 import { ProfileChip } from "./profile-chip";
 import { CloudShape } from "./cloud-shape";
-import { SESSION_KEY } from "@/lib/constants";
+import { AUTH_KEY, DEVICE_KEY, SESSION_KEY } from "@/lib/constants";
 
 export function Hero() {
+  const [confirmOpen, setConfirmOpen] = useState(false);
+
+  const handleLogout = () => {
+    localStorage.removeItem(SESSION_KEY);
+    localStorage.removeItem(AUTH_KEY);
+    localStorage.removeItem(DEVICE_KEY);
+    window.location.reload();
+  };
+
   return (
     <header className="relative overflow-hidden border-b">
       {/* z-0 — gradient + blobs */}
@@ -105,15 +123,32 @@ export function Hero() {
           variant="outline"
           size="icon"
           className="rounded-full"
-          onClick={() => {
-            localStorage.removeItem(SESSION_KEY);
-            window.location.reload();
-          }}
+          onClick={() => setConfirmOpen(true)}
         >
           <LogOut className="h-4 w-4" />
         </Button>
         <ThemeToggle />
       </div>
+
+      <Dialog open={confirmOpen} onOpenChange={setConfirmOpen}>
+        <DialogContent className="max-w-xs">
+          <DialogHeader>
+            <DialogTitle>로그아웃</DialogTitle>
+            <DialogDescription>
+              로그아웃하면 처음 화면으로 돌아갑니다.
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter className="gap-2">
+            <Button variant="outline" onClick={() => setConfirmOpen(false)}>
+              취소
+            </Button>
+            <Button variant="destructive" onClick={handleLogout}>
+              <LogOut />
+              로그아웃
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </header>
   );
 }
