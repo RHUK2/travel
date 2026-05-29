@@ -5,39 +5,19 @@ import { RotateCcw } from "lucide-react";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useTripStore } from "@/store/trip-store";
-import { upsertItemState } from "@/lib/queries";
 import { CHECKLIST_GROUPS } from "@/lib/trip-data";
 import { TRIP_ID } from "@/lib/trip-data";
 import { supabase } from "@/lib/supabase";
-import type { ItemState } from "@/lib/types";
 
 export function ChecklistTab() {
-  const { states, setItemState } = useTripStore();
-  const queryClient = useQueryClient();
-
-  const { mutate } = useMutation({
-    mutationFn: ({
-      itemId,
-      patch,
-    }: {
-      itemId: string;
-      patch: Partial<ItemState>;
-    }) => upsertItemState(itemId, patch, states[itemId]),
-    onMutate: ({ itemId, patch }) => {
-      setItemState(itemId, patch);
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["item_states"] });
-    },
-  });
+  const { states, upsert, setItemState } = useTripStore();
 
   const handleToggle = useCallback(
     (itemId: string, checked: boolean) => {
-      mutate({ itemId, patch: { is_done: checked } });
+      upsert(itemId, { is_done: checked });
     },
-    [mutate],
+    [upsert],
   );
 
   const handleReset = useCallback(async () => {
@@ -48,8 +28,7 @@ export function ChecklistTab() {
       .update({ is_done: false } as Record<string, unknown>)
       .eq("trip_id", TRIP_ID)
       .in("item_id", ids);
-    queryClient.invalidateQueries({ queryKey: ["item_states"] });
-  }, [setItemState, queryClient]);
+  }, [setItemState]);
 
   return (
     <div className="space-y-6">

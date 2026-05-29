@@ -1,3 +1,4 @@
+import { AddToHomeScreenBanner } from "@/components/add-to-homescreen-banner";
 import { QueryProvider } from "@/components/query-provider";
 import type { Metadata } from "next";
 import { ThemeProvider } from "next-themes";
@@ -52,6 +53,7 @@ export default function RootLayout({
         >
           <QueryProvider>{children}</QueryProvider>
           <Toaster position="top-center" richColors />
+          <AddToHomeScreenBanner />
         </ThemeProvider>
       </body>
     </html>

@@ -329,6 +329,7 @@ export function PasscodeGate({ children }: { children: React.ReactNode }) {
 
   useEffect(() => {
     const stored = localStorage.getItem(SESSION_KEY);
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     if (!stored) { setStep("login"); return; }
     const s: Session = JSON.parse(stored);
     setSession(s);

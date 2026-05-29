@@ -22,11 +22,9 @@ const SESSION_KEY = "travel_session";
 
 function ParticipantAvatar({
   p,
-  myId,
   onResetRequest,
 }: {
   p: Participant;
-  myId: string;
   onResetRequest: (p: Participant) => void;
 }) {
   return (
@@ -74,6 +72,7 @@ function ResetDialog({
 
   useEffect(() => {
     if (target) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setPassword("");
       setError("");
       if (!isMe) setTimeout(() => inputRef.current?.focus(), 50);
@@ -221,7 +220,6 @@ export function ParticipantsStrip() {
                 <ParticipantAvatar
                   key={p.id}
                   p={p}
-                  myId={myId}
                   onResetRequest={setResetTarget}
                 />
               ))}
