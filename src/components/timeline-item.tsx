@@ -1,6 +1,7 @@
 "use client";
 
 import { Badge } from "@/components/ui/badge";
+import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import {
@@ -81,10 +82,10 @@ export function TimelineItem({
   memoCollapseKey,
   memoExpandKey,
 }: TimelineItemProps) {
-  const { states, upsert } = useTripStore();
+  const { states, personalStates, upsert, upsertPersonal } = useTripStore();
   const state = states[item.id];
   const isDone = state?.is_done ?? false;
-  const savedMemo = state?.memo ?? "";
+  const savedMemo = personalStates[item.id]?.memo ?? "";
 
   const [tipOpen, setTipOpen] = useState(true);
   const [memoOpen, setMemoOpen] = useState(false);
@@ -92,10 +93,18 @@ export function TimelineItem({
 
   const debounceTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
+  useEffect(() => {
+    return () => { if (debounceTimer.current) clearTimeout(debounceTimer.current); };
+  }, []);
+
   const { register, watch, setValue } = useForm<MemoForm>({
     resolver: zodResolver(memoSchema),
     defaultValues: { memo: savedMemo },
   });
+
+  useEffect(() => {
+    setValue("memo", savedMemo);
+  }, [savedMemo, setValue]);
 
   // eslint-disable-next-line react-hooks/incompatible-library
   const memoValue = watch("memo");
@@ -120,10 +129,10 @@ export function TimelineItem({
     (value: string) => {
       if (debounceTimer.current) clearTimeout(debounceTimer.current);
       debounceTimer.current = setTimeout(() => {
-        upsert(item.id, { memo: value });
+        upsertPersonal(item.id, { memo: value });
       }, 600);
     },
-    [item.id, upsert],
+    [item.id, upsertPersonal],
   );
 
   const handleDoneToggle = useCallback(() => {
@@ -131,11 +140,11 @@ export function TimelineItem({
   }, [item.id, isDone, upsert]);
 
   const handleDeleteMemo = useCallback(async () => {
-    await upsert(item.id, { memo: "" });
+    await upsertPersonal(item.id, { memo: "" });
     setValue("memo", "");
     setMemoOpen(false);
     setDeleteOpen(false);
-  }, [item.id, upsert, setValue]);
+  }, [item.id, upsertPersonal, setValue]);
 
   const cat = CATEGORY_STYLE[item.category];
 
@@ -195,11 +204,13 @@ export function TimelineItem({
             )}
 
             {item.mapLink && (
-              <Badge
+              <Button
                 asChild
-                className="w-fit rounded-full border border-blue-200 bg-blue-50 text-[11px] font-semibold text-blue-600 transition-colors hover:bg-blue-100 dark:border-blue-900 dark:bg-blue-950 dark:text-blue-300"
+                variant="outline"
+                size="sm"
+                className="h-6 w-fit gap-1 rounded-full border-blue-200 bg-blue-50 px-2.5 text-[11px] text-blue-600 hover:bg-blue-100 hover:text-blue-700 dark:border-blue-900 dark:bg-blue-950 dark:text-blue-300 dark:hover:bg-blue-900"
               >
-                <a
+                <Link
                   href={item.mapLink}
                   target="_blank"
                   rel="noopener noreferrer"
@@ -207,18 +218,18 @@ export function TimelineItem({
                 >
                   <Map className="h-3 w-3" />
                   구글맵 경로 보기
-                </a>
-              </Badge>
+                </Link>
+              </Button>
             )}
 
             {/* tip & memo buttons */}
-            <div className="flex gap-1.5" onClick={(e) => e.stopPropagation()}>
+            <div className="flex gap-1.5">
               {item.tip && (
                 <Button
                   variant="outline"
                   size="sm"
                   className="h-6 gap-1 rounded-full px-2.5 text-[11px]"
-                  onClick={() => setTipOpen((v) => !v)}
+                  onClick={(e) => { e.stopPropagation(); setTipOpen((v) => !v); }}
                 >
                   {tipOpen ? (
                     <ChevronUp className="h-3 w-3" />
@@ -235,7 +246,7 @@ export function TimelineItem({
                   "h-6 gap-1 rounded-full px-2.5 text-[11px]",
                   memoValue && "border-primary",
                 )}
-                onClick={() => setMemoOpen((v) => !v)}
+                onClick={(e) => { e.stopPropagation(); setMemoOpen((v) => !v); }}
               >
                 <PenLine className="h-3 w-3" />
                 메모{memoValue ? " ●" : ""}
@@ -245,7 +256,7 @@ export function TimelineItem({
                   variant="ghost"
                   size="sm"
                   className="text-muted-foreground hover:text-destructive h-6 w-6 rounded-full p-0"
-                  onClick={() => setDeleteOpen(true)}
+                  onClick={(e) => { e.stopPropagation(); setDeleteOpen(true); }}
                 >
                   <Trash2 className="h-3 w-3" />
                 </Button>
@@ -278,16 +289,15 @@ export function TimelineItem({
               "grid transition-[grid-template-rows] duration-200 ease-in-out",
               memoOpen ? "grid-rows-[1fr]" : "grid-rows-[0fr]",
             )}
-            onClick={(e) => e.stopPropagation()}
           >
             <div className="min-h-0 overflow-hidden">
-              <div className="mt-2">
+              <div className="mt-2 p-1">
                 <Textarea
                   {...register("memo", {
                     onChange: (e) => handleMemoChange(e.target.value),
                   })}
                   placeholder="메모를 입력하세요…"
-                  className="min-h-[72px] resize-y text-sm"
+                  className="min-h-[72px] resize-y text-sm "
                   onClick={(e) => e.stopPropagation()}
                 />
               </div>

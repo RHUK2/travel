@@ -5,13 +5,11 @@ import { RotateCcw } from "lucide-react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Separator } from "@/components/ui/separator";
 import { useTripStore } from "@/store/trip-store";
-import { upsertItemState } from "@/lib/queries";
 import { EXPENSE_ROWS } from "@/lib/trip-data";
 
 const budgetSchema = z.object(
@@ -20,36 +18,29 @@ const budgetSchema = z.object(
 type BudgetForm = z.infer<typeof budgetSchema>;
 
 export function ExpenseTab() {
-  const { states, setItemState } = useTripStore();
-  const queryClient = useQueryClient();
+  const { personalStates, upsertPersonal } = useTripStore();
   const debounceTimers = useRef<Record<string, ReturnType<typeof setTimeout>>>(
     {},
   );
+
+  useEffect(() => {
+    const timers = debounceTimers.current;
+    return () => { Object.values(timers).forEach(clearTimeout); };
+  }, []);
 
   const { register, watch, reset } = useForm<BudgetForm>({
     resolver: zodResolver(budgetSchema),
     defaultValues: Object.fromEntries(EXPENSE_ROWS.map((r) => [r.id, ""])),
   });
 
-  const { mutate } = useMutation({
-    mutationFn: ({ id, value }: { id: string; value: string }) =>
-      upsertItemState(id, { value }, states[id]),
-    onMutate: ({ id, value }) => {
-      setItemState(id, { value });
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["item_states"] });
-    },
-  });
-
-  // sync store → form once data loads
+  // sync store → form once personal data loads
   useEffect(() => {
     const values = Object.fromEntries(
-      EXPENSE_ROWS.map((r) => [r.id, states[r.id]?.value ?? ""]),
+      EXPENSE_ROWS.map((r) => [r.id, personalStates[r.id]?.value ?? ""]),
     );
     reset(values);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [Object.keys(states).length]);
+  }, [Object.keys(personalStates).length]);
 
   // eslint-disable-next-line react-hooks/incompatible-library
   const allValues = watch();
@@ -62,17 +53,16 @@ export function ExpenseTab() {
     (id: string, value: string) => {
       if (debounceTimers.current[id]) clearTimeout(debounceTimers.current[id]);
       debounceTimers.current[id] = setTimeout(() => {
-        mutate({ id, value });
+        upsertPersonal(id, { value });
       }, 600);
     },
-    [mutate],
+    [upsertPersonal],
   );
 
   const handleReset = useCallback(async () => {
     reset(Object.fromEntries(EXPENSE_ROWS.map((r) => [r.id, ""])));
-    for (const r of EXPENSE_ROWS) mutate({ id: r.id, value: "" });
-    queryClient.invalidateQueries({ queryKey: ["item_states"] });
-  }, [reset, mutate, queryClient]);
+    for (const r of EXPENSE_ROWS) upsertPersonal(r.id, { value: "" });
+  }, [reset, upsertPersonal]);
 
   return (
     <div className="space-y-6">

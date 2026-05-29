@@ -1,31 +1,20 @@
-import { supabase } from "./supabase";
-import { TRIP_ID } from "./trip-data";
 import type { ItemState } from "./types";
 
 export async function fetchItemStates(): Promise<ItemState[]> {
-  const { data, error } = await supabase
-    .from("item_states")
-    .select("*")
-    .eq("trip_id", TRIP_ID);
-  if (error) throw error;
-  return (data ?? []) as ItemState[];
+  const res = await fetch("/api/item-states");
+  if (!res.ok) throw new Error("Failed to fetch item states");
+  return res.json();
 }
 
 export async function upsertItemState(
   itemId: string,
-  patch: Partial<Pick<ItemState, "is_done" | "memo" | "value">>,
+  patch: Partial<Pick<ItemState, "is_done">>,
   current?: ItemState,
 ) {
-  const { error } = await supabase.from("item_states").upsert(
-    {
-      trip_id: TRIP_ID,
-      item_id: itemId,
-      is_done: current?.is_done ?? false,
-      memo: current?.memo ?? "",
-      value: current?.value ?? "",
-      ...patch,
-    } as Record<string, unknown>,
-    { onConflict: "trip_id,item_id" },
-  );
-  if (error) throw error;
+  const res = await fetch("/api/item-states", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ itemId, patch, current }),
+  });
+  if (!res.ok) throw new Error("Failed to upsert item state");
 }
