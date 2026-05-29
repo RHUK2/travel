@@ -8,26 +8,31 @@ import {
   InputGroupInput,
   InputGroupText,
 } from "@/components/ui/input-group";
-import { uploadAvatar, upsertParticipant } from "@/lib/participants-queries";
+import { CloudShape } from "@/components/cloud-shape";
+import { SESSION_KEY } from "@/lib/constants";
+import { updateParticipantProfile, uploadAvatar } from "@/lib/participants-queries";
 import { supabase } from "@/lib/supabase";
 import { TRIP_ID } from "@/lib/trip-data";
+import type { Session } from "@/lib/types";
 import { cn } from "@/lib/utils";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Camera, Cloud, Lock, MapPin, MessageSquare, User } from "lucide-react";
+import { Camera, Lock, MapPin, MessageSquare, User } from "lucide-react";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useForm } from "react-hook-form";
+import { toast } from "sonner";
 import { z } from "zod";
 
-const PASSCODE = process.env.NEXT_PUBLIC_PASSCODE ?? "yonago2026";
-const AUTH_KEY = "travel_auth";
-const DEVICE_KEY = "travel_device_id";
-
 const CLOUDS = [
-  { id: 0, top: "7%",  dur: 58, del:   0, size: 96 },
-  { id: 1, top: "24%", dur: 78, del: -21, size: 72 },
-  { id: 2, top: "53%", dur: 66, del: -38, size: 84 },
-  { id: 3, top: "73%", dur: 88, del: -54, size: 64 },
+  { id: 0, top:  "7%", dur: 58, del: -12, scale: 0.65, opacity: 0.8  },
+  { id: 1, top: "24%", dur: 78, del: -39, scale: 0.5,  opacity: 0.65 },
+  { id: 2, top: "53%", dur: 66, del: -20, scale: 0.55, opacity: 0.6  },
+  { id: 3, top: "73%", dur: 88, del: -62, scale: 0.45, opacity: 0.55 },
+  { id: 4, top: "15%", dur: 70, del: -55, scale: 0.4,  opacity: 0.5  },
+  { id: 5, top: "40%", dur: 50, del:  -8, scale: 0.6,  opacity: 0.6  },
+  { id: 6, top: "62%", dur: 62, del: -47, scale: 0.35, opacity: 0.45 },
+  { id: 7, top: "85%", dur: 75, del: -25, scale: 0.5,  opacity: 0.5  },
 ];
+
 
 const STARS = [
   { id:  0, top:  "4%", left:  "7%", size: 2.5, dur: 2.5, del: 0.0 },
@@ -52,21 +57,37 @@ const STARS = [
   { id: 19, top: "59%", left: "47%", size: 1.5, dur: 3.0, del: 1.4 },
 ];
 
-function getDeviceId(): string {
-  let id = localStorage.getItem(DEVICE_KEY);
-  if (!id) {
-    id = crypto.randomUUID();
-    localStorage.setItem(DEVICE_KEY, id);
-  }
-  return id;
+function Background({ isDark }: { isDark: boolean | null }) {
+  return (
+    <>
+      <div className="to-background dark:to-background absolute inset-0 bg-linear-to-b from-sky-200/50 via-sky-100/15 via-90% dark:from-sky-950/50 dark:via-sky-900/15 dark:via-90%" />
+      <div className="absolute -top-16 -right-16 h-56 w-56 rounded-full bg-sky-200/40 blur-3xl dark:bg-sky-700/20" />
+      <div className="absolute bottom-0 -left-12 h-40 w-40 rounded-full bg-indigo-100/50 blur-2xl dark:bg-indigo-900/20" />
+      {isDark === false && CLOUDS.map((c) => (
+        <div
+          key={c.id}
+          className="pointer-events-none absolute"
+          style={{ top: c.top, left: "-140px", animation: `cloudDrift ${c.dur}s linear ${c.del}s infinite` }}
+        >
+          <CloudShape scale={c.scale} opacity={c.opacity} />
+        </div>
+      ))}
+      {isDark === true && STARS.map((s) => (
+        <div
+          key={s.id}
+          className="pointer-events-none absolute rounded-full bg-white/60 dark:bg-white"
+          style={{
+            top: s.top,
+            left: s.left,
+            width: s.size,
+            height: s.size,
+            animation: `twinkle ${s.dur}s ease-in-out ${s.del}s infinite`,
+          }}
+        />
+      ))}
+    </>
+  );
 }
-
-const schema = z.object({
-  name: z.string().min(1, "이름을 입력해주세요"),
-  message: z.string().max(50, "50자 이하로 입력해주세요"),
-  passcode: z.string().min(1, "패스코드를 입력해주세요"),
-});
-type GateForm = z.infer<typeof schema>;
 
 function Field({
   label,
@@ -104,49 +125,89 @@ function Field({
   );
 }
 
-export function PasscodeGate({ children }: { children: React.ReactNode }) {
-  const [verified, setVerified] = useState(false);
-  const [deviceId, setDeviceId] = useState("");
+// ─── Login step ──────────────────────────────────────────────────────────────
 
-  useEffect(() => {
-    const stored = localStorage.getItem(AUTH_KEY);
-    if (stored) {
-      setVerified(true);
-      setDeviceId(JSON.parse(stored).deviceId);
-    }
-  }, []);
+const loginSchema = z.object({
+  name: z.string().min(1, "이름을 입력해주세요"),
+  passcode: z.string().min(1, "패스코드를 입력해주세요"),
+});
+type LoginForm = z.infer<typeof loginSchema>;
 
-  useEffect(() => {
-    if (!verified || !deviceId) return;
-    const channel = supabase
-      .channel("kick_watch")
-      .on("postgres_changes", {
-        event: "DELETE",
-        schema: "public",
-        table: "participants",
-        filter: `trip_id=eq.${TRIP_ID}`,
-      }, (payload) => {
-        if ((payload.old as { id?: string }).id === deviceId) {
-          localStorage.removeItem(AUTH_KEY);
-          localStorage.removeItem(DEVICE_KEY);
-          setVerified(false);
-          setDeviceId("");
-        }
-      })
-      .subscribe();
-    return () => { supabase.removeChannel(channel); };
-  }, [verified, deviceId]);
-  const [isDark, setIsDark] = useState<boolean | null>(null);
-  useEffect(() => {
-    const mq = window.matchMedia("(prefers-color-scheme: dark)");
-    setIsDark(mq.matches);
-    const handler = (e: MediaQueryListEvent) => setIsDark(e.matches);
-    mq.addEventListener("change", handler);
-    return () => mq.removeEventListener("change", handler);
-  }, []);
-
+function LoginStep({ onSuccess }: { onSuccess: (session: Session) => void }) {
   const [passcodeError, setPasscodeError] = useState("");
+  const {
+    register,
+    handleSubmit,
+    formState: { errors, isSubmitting },
+  } = useForm<LoginForm>({
+    resolver: zodResolver(loginSchema),
+    defaultValues: { name: "", passcode: "" },
+  });
 
+  const onSubmit = async (data: LoginForm) => {
+    setPasscodeError("");
+    const res = await fetch("/api/login", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ name: data.name, passcode: data.passcode }),
+    });
+    if (!res.ok) {
+      const json = await res.json().catch(() => ({}));
+      const error: string = json.error ?? "로그인에 실패했습니다";
+      if (error === "패스코드가 올바르지 않습니다") {
+        setPasscodeError(error);
+      } else {
+        toast.error(error);
+      }
+      return;
+    }
+    onSuccess(await res.json());
+  };
+
+  return (
+    <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+      <Field label="이름" icon={User} error={errors.name?.message}>
+        <InputGroupInput
+          {...register("name")}
+          placeholder="홍길동"
+          aria-invalid={!!errors.name}
+        />
+      </Field>
+
+        <Field
+          label="패스코드"
+          icon={Lock}
+          error={passcodeError || errors.passcode?.message}
+        >
+          <InputGroupInput
+            {...register("passcode", { onChange: () => setPasscodeError("") })}
+            type="password"
+            placeholder="••••••••"
+            aria-invalid={!!(errors.passcode || passcodeError)}
+          />
+        </Field>
+
+      <Button type="submit" className="w-full" disabled={isSubmitting}>
+        {isSubmitting ? "확인 중…" : "입장하기 →"}
+      </Button>
+    </form>
+  );
+}
+
+// ─── Profile step ─────────────────────────────────────────────────────────────
+
+const profileSchema = z.object({
+  message: z.string().min(1, "한마디를 입력해주세요").max(50, "50자 이하로 입력해주세요"),
+});
+type ProfileForm = z.infer<typeof profileSchema>;
+
+function ProfileStep({
+  session,
+  onComplete,
+}: {
+  session: Session;
+  onComplete: () => void;
+}) {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [imageSrc, setImageSrc] = useState("");
   const [cropOpen, setCropOpen] = useState(false);
@@ -157,32 +218,25 @@ export function PasscodeGate({ children }: { children: React.ReactNode }) {
     register,
     handleSubmit,
     formState: { errors, isSubmitting },
-  } = useForm<GateForm>({
-    resolver: zodResolver(schema),
-    defaultValues: { name: "", message: "", passcode: "" },
+  } = useForm<ProfileForm>({
+    resolver: zodResolver(profileSchema),
+    defaultValues: { message: "" },
   });
 
-  const handleFileChange = useCallback(
-    (e: React.ChangeEvent<HTMLInputElement>) => {
-      const file = e.target.files?.[0];
-      if (!file) return;
-      const url = URL.createObjectURL(file);
-      setImageSrc(url);
-      setCropOpen(true);
-      e.target.value = "";
-    },
-    [],
-  );
+  const handleFileChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setImageSrc(URL.createObjectURL(file));
+    setCropOpen(true);
+    e.target.value = "";
+  }, []);
 
-  const handleCropConfirm = useCallback(
-    (blob: Blob) => {
-      if (previewUrl) URL.revokeObjectURL(previewUrl);
-      setCroppedBlob(blob);
-      setPreviewUrl(URL.createObjectURL(blob));
-      setCropOpen(false);
-    },
-    [previewUrl],
-  );
+  const handleCropConfirm = useCallback((blob: Blob) => {
+    if (previewUrl) URL.revokeObjectURL(previewUrl);
+    setCroppedBlob(blob);
+    setPreviewUrl(URL.createObjectURL(blob));
+    setCropOpen(false);
+  }, [previewUrl]);
 
   const handleCropCancel = useCallback(() => {
     URL.revokeObjectURL(imageSrc);
@@ -190,77 +244,156 @@ export function PasscodeGate({ children }: { children: React.ReactNode }) {
     setCropOpen(false);
   }, [imageSrc]);
 
-  const onSubmit = async (data: GateForm) => {
-    if (data.passcode !== PASSCODE) {
-      setPasscodeError("패스코드가 올바르지 않습니다");
-      return;
-    }
-    setPasscodeError("");
-    const deviceId = getDeviceId();
-    let photoUrl = "";
+  const onSubmit = async (data: ProfileForm) => {
+    const patch: { photo_url?: string; message: string } = { message: data.message };
     if (croppedBlob) {
-      photoUrl = await uploadAvatar(deviceId, croppedBlob);
+      patch.photo_url = await uploadAvatar(session.id, croppedBlob);
     }
-    await upsertParticipant({
-      id: deviceId,
-      name: data.name,
-      photo_url: photoUrl,
+    await updateParticipantProfile(session.id, patch);
+
+    const updated: Session = {
+      ...session,
       message: data.message,
-    });
-    localStorage.setItem(
-      AUTH_KEY,
-      JSON.stringify({ name: data.name, deviceId }),
-    );
-    setVerified(true);
+      photo_url: patch.photo_url ?? session.photo_url,
+    };
+    localStorage.setItem(SESSION_KEY, JSON.stringify(updated));
+    onComplete();
   };
 
-  if (verified) return <>{children}</>;
+  return (
+    <>
+      <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+        <p className="text-muted-foreground text-center text-sm">
+          {session.name}님, 반가워요!<br />프로필을 완성해주세요.
+        </p>
+
+        {/* avatar upload */}
+        <div className="flex justify-center pb-2">
+          <button
+            type="button"
+            onClick={() => fileInputRef.current?.click()}
+            className={cn(
+              "border-muted-foreground/30 relative h-20 w-20 cursor-pointer overflow-hidden rounded-full border-2 border-dashed transition-colors hover:border-sky-400",
+              previewUrl && "border-solid border-transparent",
+            )}
+          >
+            {previewUrl ? (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img src={previewUrl} alt="" className="h-full w-full object-cover" />
+            ) : (
+              <div className="text-muted-foreground flex h-full flex-col items-center justify-center gap-1">
+                <Camera className="h-5 w-5" />
+                <span className="text-[10px]">사진 선택</span>
+              </div>
+            )}
+          </button>
+          <input
+            ref={fileInputRef}
+            type="file"
+            accept="image/jpeg,image/png,image/webp"
+            className="hidden"
+            onChange={handleFileChange}
+          />
+        </div>
+
+        <Field label="한마디" icon={MessageSquare} error={errors.message?.message}>
+          <InputGroupInput
+            {...register("message")}
+            placeholder="기대돼요!"
+            aria-invalid={!!errors.message}
+          />
+        </Field>
+
+        <Button type="submit" className="w-full" disabled={isSubmitting}>
+          {isSubmitting ? "저장 중…" : "완료 →"}
+        </Button>
+      </form>
+
+      <CropDialog
+        open={cropOpen}
+        imageSrc={imageSrc}
+        onConfirm={handleCropConfirm}
+        onCancel={handleCropCancel}
+      />
+    </>
+  );
+}
+
+// ─── Gate ─────────────────────────────────────────────────────────────────────
+
+type Step = "checking" | "login" | "profile" | "done";
+
+export function PasscodeGate({ children }: { children: React.ReactNode }) {
+  const [step, setStep] = useState<Step>("checking");
+  const [session, setSession] = useState<Session | null>(null);
+
+  useEffect(() => {
+    const stored = localStorage.getItem(SESSION_KEY);
+    if (!stored) { setStep("login"); return; }
+    const s: Session = JSON.parse(stored);
+    setSession(s);
+    setStep(s.photo_url && s.message ? "done" : "profile");
+  }, []);
+
+  useEffect(() => {
+    if (!session) return;
+    const logout = () => {
+      localStorage.removeItem(SESSION_KEY);
+      setSession(null);
+      setStep("login");
+    };
+    const channel = supabase
+      .channel("kick_watch")
+      .on("postgres_changes", {
+        event: "DELETE",
+        schema: "public",
+        table: "participants",
+        filter: `trip_id=eq.${TRIP_ID}`,
+      }, (payload) => {
+        if ((payload.old as { id?: string }).id === session.id) logout();
+      })
+      .on("postgres_changes", {
+        event: "UPDATE",
+        schema: "public",
+        table: "participants",
+        filter: `trip_id=eq.${TRIP_ID}`,
+      }, (payload) => {
+        const updated = payload.new as { id: string; token: string };
+        if (updated.id === session.id && !updated.token) logout();
+      })
+      .subscribe();
+    return () => { supabase.removeChannel(channel); };
+  }, [session]);
+
+  const [isDark, setIsDark] = useState<boolean | null>(() => {
+    if (typeof window === "undefined") return null;
+    return document.documentElement.classList.contains("dark");
+  });
+  useEffect(() => {
+    const update = () => setIsDark(document.documentElement.classList.contains("dark"));
+    const observer = new MutationObserver(update);
+    observer.observe(document.documentElement, { attributeFilter: ["class"] });
+    return () => observer.disconnect();
+  }, []);
+
+  if (step === "checking") return (
+    <div className="fixed inset-0 flex items-start">
+      <div className="h-0.5 w-full overflow-hidden bg-transparent">
+        <div className="h-full animate-[loading-bar_1.2s_ease-in-out_infinite] bg-sky-400" />
+      </div>
+    </div>
+  );
+  if (step === "done") return <>{children}</>;
+
+  const handleLoginSuccess = (s: Session) => {
+    localStorage.setItem(SESSION_KEY, JSON.stringify(s));
+    setSession(s);
+    setStep(s.photo_url && s.message ? "done" : "profile");
+  };
 
   return (
     <div className="relative flex min-h-screen flex-col items-center justify-center overflow-hidden px-4 py-12">
-      <style>{`
-        @keyframes cloud-float {
-          0%   { transform: translateX(-180px) translateY(0px); }
-          25%  { transform: translateX(25vw)   translateY(-8px); }
-          50%  { transform: translateX(50vw)   translateY(0px); }
-          75%  { transform: translateX(75vw)   translateY(-8px); }
-          100% { transform: translateX(110vw)  translateY(0px); }
-        }
-        @keyframes star-twinkle {
-          0%, 100% { opacity: 0.15; transform: scale(1); }
-          50%      { opacity: 0.85; transform: scale(1.4); }
-        }
-      `}</style>
-      <div className="to-background dark:to-background absolute inset-0 bg-linear-to-b from-sky-200/50 via-sky-100/15 via-90% dark:from-sky-950/50 dark:via-sky-900/15 dark:via-90%" />
-      <div className="absolute -top-16 -right-16 h-56 w-56 rounded-full bg-sky-200/40 blur-3xl dark:bg-sky-700/20" />
-      <div className="absolute bottom-0 -left-12 h-40 w-40 rounded-full bg-indigo-100/50 blur-2xl dark:bg-indigo-900/20" />
-
-      {isDark === false && CLOUDS.map((c) => (
-        <div
-          key={c.id}
-          className="pointer-events-none absolute"
-          style={{ top: c.top, left: 0, animation: `cloud-float ${c.dur}s linear ${c.del}s infinite` }}
-        >
-          <Cloud
-            className="text-sky-400/50 dark:text-sky-300/25"
-            style={{ width: c.size, height: c.size }}
-          />
-        </div>
-      ))}
-
-      {isDark === true && STARS.map((s) => (
-        <div
-          key={s.id}
-          className="pointer-events-none absolute rounded-full bg-white/60 dark:bg-white"
-          style={{
-            top: s.top,
-            left: s.left,
-            width: s.size,
-            height: s.size,
-            animation: `star-twinkle ${s.dur}s ease-in-out ${s.del}s infinite`,
-          }}
-        />
-      ))}
+<Background isDark={isDark} />
 
       <div className="relative z-10 w-full max-w-sm">
         <div className="mb-8 text-center">
@@ -277,91 +410,14 @@ export function PasscodeGate({ children }: { children: React.ReactNode }) {
         </div>
 
         <div className="bg-background/80 rounded-2xl border p-6 shadow-xl backdrop-blur-sm">
-          <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-            {/* avatar upload */}
-            <div className="flex justify-center pb-2">
-              <button
-                type="button"
-                onClick={() => fileInputRef.current?.click()}
-                className={cn(
-                  "border-muted-foreground/30 relative h-20 w-20 overflow-hidden rounded-full border-2 border-dashed transition-colors hover:border-sky-400",
-                  previewUrl && "border-solid border-transparent",
-                )}
-              >
-                {previewUrl ? (
-                  // eslint-disable-next-line @next/next/no-img-element
-                  <img
-                    src={previewUrl}
-                    alt=""
-                    className="h-full w-full object-cover"
-                  />
-                ) : (
-                  <div className="text-muted-foreground flex h-full flex-col items-center justify-center gap-1">
-                    <Camera className="h-5 w-5" />
-                    <span className="text-[10px]">사진 선택</span>
-                  </div>
-                )}
-              </button>
-              <input
-                ref={fileInputRef}
-                type="file"
-                accept="image/jpeg,image/png,image/webp"
-                className="hidden"
-                onChange={handleFileChange}
-              />
-            </div>
-
-            <Field label="이름" icon={User} error={errors.name?.message}>
-              <InputGroupInput
-                {...register("name")}
-                placeholder="홍길동"
-                aria-invalid={!!errors.name}
-              />
-            </Field>
-
-            <Field
-              label="한마디"
-              optional
-              icon={MessageSquare}
-              error={errors.message?.message}
-            >
-              <InputGroupInput
-                {...register("message")}
-                placeholder="기대돼요!"
-                aria-invalid={!!errors.message}
-              />
-            </Field>
-
-            <div className="border-t pt-4">
-              <Field
-                label="패스코드"
-                icon={Lock}
-                error={passcodeError || errors.passcode?.message}
-              >
-                <InputGroupInput
-                  {...register("passcode", {
-                    onChange: () => setPasscodeError(""),
-                  })}
-                  type="password"
-                  placeholder="••••••••"
-                  aria-invalid={!!(errors.passcode || passcodeError)}
-                />
-              </Field>
-            </div>
-
-            <Button type="submit" className="w-full" disabled={isSubmitting}>
-              {isSubmitting ? "저장 중…" : "입장하기 →"}
-            </Button>
-          </form>
+          {step === "login" && (
+            <LoginStep onSuccess={handleLoginSuccess} />
+          )}
+          {step === "profile" && session && (
+            <ProfileStep session={session} onComplete={() => setStep("done")} />
+          )}
         </div>
       </div>
-
-      <CropDialog
-        open={cropOpen}
-        imageSrc={imageSrc}
-        onConfirm={handleCropConfirm}
-        onCancel={handleCropCancel}
-      />
     </div>
   );
 }

@@ -1,6 +1,3 @@
-import { supabase } from "./supabase";
-import { TRIP_ID } from "./trip-data";
-
 export interface Participant {
   id: string;
   trip_id: string;
@@ -11,46 +8,49 @@ export interface Participant {
 }
 
 export async function fetchParticipants(): Promise<Participant[]> {
-  const { data, error } = await supabase
-    .from("participants")
-    .select("*")
-    .eq("trip_id", TRIP_ID)
-    .order("joined_at");
-  if (error) throw error;
-  return (data ?? []) as Participant[];
-}
-
-export async function upsertParticipant(
-  p: Omit<Participant, "trip_id" | "joined_at">,
-): Promise<void> {
-  const { error } = await supabase
-    .from("participants")
-    .upsert({ trip_id: TRIP_ID, ...p }, { onConflict: "trip_id,id" });
-  if (error) throw error;
+  const res = await fetch("/api/participants");
+  if (!res.ok) throw new Error("Failed to fetch participants");
+  return res.json();
 }
 
 export async function deleteAvatar(photoUrl: string): Promise<void> {
-  const path = photoUrl.split("/avatars/")[1];
-  if (!path) return;
-  await supabase.storage.from("avatars").remove([path]);
+  await fetch("/api/participants/delete-avatar", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ photoUrl }),
+  });
+}
+
+export async function updateParticipantProfile(
+  id: string,
+  patch: { photo_url?: string; message?: string },
+): Promise<void> {
+  const res = await fetch("/api/participants/update-profile", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ id, patch }),
+  });
+  if (!res.ok) throw new Error("Failed to update participant profile");
 }
 
 export async function deleteParticipant(id: string): Promise<void> {
-  const { error } = await supabase
-    .from("participants")
-    .delete()
-    .eq("trip_id", TRIP_ID)
-    .eq("id", id);
-  if (error) throw error;
+  const res = await fetch("/api/participants/delete", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ id }),
+  });
+  if (!res.ok) throw new Error("Failed to delete participant");
 }
 
 export async function uploadAvatar(deviceId: string, blob: Blob): Promise<string> {
-  const ext = blob.type === "image/png" ? "png" : blob.type === "image/webp" ? "webp" : "jpg";
-  const path = `${deviceId}.${ext}`;
-  const { error } = await supabase.storage
-    .from("avatars")
-    .upload(path, blob, { upsert: true, contentType: blob.type });
-  if (error) throw error;
-  const { data } = supabase.storage.from("avatars").getPublicUrl(path);
-  return data.publicUrl;
+  const formData = new FormData();
+  formData.append("deviceId", deviceId);
+  formData.append("file", blob);
+  const res = await fetch("/api/participants/upload-avatar", {
+    method: "POST",
+    body: formData,
+  });
+  if (!res.ok) throw new Error("Failed to upload avatar");
+  const { publicUrl } = await res.json();
+  return publicUrl;
 }

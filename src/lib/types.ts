@@ -62,3 +62,20 @@ export interface ItemState {
   value: string;
   updated_at: string;
 }
+
+export interface PersonalState {
+  trip_id: string;
+  item_id: string;
+  user_id: string;
+  memo: string;
+  value: string;
+  updated_at: string;
+}
+
+export interface Session {
+  id: string;
+  name: string;
+  token: string;
+  photo_url: string;
+  message: string;
+}

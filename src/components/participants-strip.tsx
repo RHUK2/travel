@@ -1,47 +1,51 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { X } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
 import { supabase } from "@/lib/supabase";
-import { deleteAvatar, deleteParticipant, fetchParticipants, type Participant } from "@/lib/participants-queries";
+import { fetchParticipants, type Participant } from "@/lib/participants-queries";
 import { TRIP_ID } from "@/lib/trip-data";
 
-const AUTH_KEY = "travel_auth";
+const SESSION_KEY = "travel_session";
 
-function ParticipantAvatar({ p, myId }: { p: Participant; myId: string }) {
-  const [kicking, setKicking] = useState(false);
-  const isMe = p.id === myId;
-
-  const handleKick = async () => {
-    setKicking(true);
-    if (p.photo_url) await deleteAvatar(p.photo_url);
-    await deleteParticipant(p.id);
-    setKicking(false);
-  };
-
+function ParticipantAvatar({
+  p,
+  myId,
+  onResetRequest,
+}: {
+  p: Participant;
+  myId: string;
+  onResetRequest: (p: Participant) => void;
+}) {
   return (
     <div className="group flex flex-col items-center gap-1">
       <div className="relative">
         <Avatar className="h-10 w-10 border-2 border-background shadow-sm">
-          <AvatarImage src={p.photo_url} alt={p.name} />
+          <AvatarImage src={p.photo_url || undefined} alt={p.name} />
           <AvatarFallback className="bg-sky-100 text-sm font-bold text-sky-700 dark:bg-sky-950 dark:text-sky-300">
             {p.name.slice(0, 1)}
           </AvatarFallback>
         </Avatar>
-        {!isMe && (
-          <Button
-            variant="ghost"
-            size="icon"
-            onClick={handleKick}
-            disabled={kicking}
-            className="absolute inset-0 h-full w-full rounded-full bg-black/50 opacity-0 transition-opacity group-hover:opacity-100 hover:bg-black/50"
-          >
-            <X className="h-4 w-4 text-white" />
-          </Button>
-        )}
+        <Button
+          variant="ghost"
+          size="icon"
+          onClick={() => onResetRequest(p)}
+          className="absolute inset-0 h-full w-full rounded-full bg-black/50 opacity-0 transition-opacity group-hover:opacity-100 hover:bg-black/50"
+        >
+          <X className="h-4 w-4 text-white" />
+        </Button>
       </div>
       <span className="text-[11px] font-medium">{p.name}</span>
       {p.message && (
@@ -53,16 +57,114 @@ function ParticipantAvatar({ p, myId }: { p: Participant; myId: string }) {
   );
 }
 
-export function ParticipantsStrip() {
-  const queryClient = useQueryClient();
-  const [myId, setMyId] = useState("");
+function ResetDialog({
+  target,
+  myId,
+  onClose,
+}: {
+  target: Participant | null;
+  myId: string;
+  onClose: () => void;
+}) {
+  const isMe = target?.id === myId;
+  const [password, setPassword] = useState("");
+  const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
+  const inputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
-    const stored = localStorage.getItem(AUTH_KEY);
-    if (stored) setMyId(JSON.parse(stored).deviceId);
-  }, []);
+    if (target) {
+      setPassword("");
+      setError("");
+      if (!isMe) setTimeout(() => inputRef.current?.focus(), 50);
+    }
+  }, [target, isMe]);
 
-  const { data: participants = [] } = useQuery({
+  const handleConfirm = async () => {
+    setLoading(true);
+    setError("");
+
+    if (isMe) {
+      const stored = localStorage.getItem(SESSION_KEY);
+      const userId = stored ? JSON.parse(stored).id : null;
+      const res = await fetch("/api/participants/reset-self", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ userId }),
+      });
+      setLoading(false);
+      if (!res.ok) {
+        setError("오류가 발생했습니다");
+        return;
+      }
+      localStorage.removeItem(SESSION_KEY);
+      window.location.reload();
+      return;
+    }
+
+    const res = await fetch("/api/admin/clear-profile", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ targetId: target!.id, adminPassword: password }),
+    });
+    setLoading(false);
+    if (!res.ok) {
+      const json = await res.json().catch(() => ({}));
+      setError(json.error ?? "오류가 발생했습니다");
+      return;
+    }
+    onClose();
+  };
+
+  return (
+    <Dialog open={!!target} onOpenChange={(open) => { if (!open) onClose(); }}>
+      <DialogContent className="max-w-xs">
+        <DialogHeader>
+          <DialogTitle>프로필 초기화</DialogTitle>
+          <DialogDescription>
+            {isMe
+              ? "내 프로필(사진, 한마디)을 초기화하고 로그아웃합니다."
+              : `${target?.name}님의 프로필을 초기화하고 세션을 종료합니다.`}
+          </DialogDescription>
+        </DialogHeader>
+        {!isMe && (
+          <>
+            <Input
+              ref={inputRef}
+              type="password"
+              placeholder="어드민 비밀번호"
+              value={password}
+              onChange={(e) => { setPassword(e.target.value); setError(""); }}
+              onKeyDown={(e) => { if (e.key === "Enter") handleConfirm(); }}
+            />
+            {error && <p className="text-destructive text-xs">{error}</p>}
+          </>
+        )}
+        <DialogFooter className="gap-2">
+          <Button variant="outline" onClick={onClose} disabled={loading}>
+            취소
+          </Button>
+          <Button
+            variant="destructive"
+            onClick={handleConfirm}
+            disabled={loading || (!isMe && !password)}
+          >
+            {loading ? "처리 중…" : "초기화"}
+          </Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
+  );
+}
+
+export function ParticipantsStrip() {
+  const queryClient = useQueryClient();
+  const stored = typeof window !== "undefined" ? localStorage.getItem(SESSION_KEY) : null;
+  const myId = stored ? JSON.parse(stored).id : "";
+
+  const [resetTarget, setResetTarget] = useState<Participant | null>(null);
+
+  const { data: participants = [], isLoading } = useQuery({
     queryKey: ["participants"],
     queryFn: fetchParticipants,
   });
@@ -95,23 +197,42 @@ export function ParticipantsStrip() {
       )
       .subscribe();
 
-    return () => {
-      supabase.removeChannel(channel);
-    };
+    return () => { supabase.removeChannel(channel); };
   }, [queryClient]);
 
-  if (participants.length === 0) return null;
+  if (!isLoading && participants.length === 0) return null;
 
   return (
-    <div className="relative z-20 border-t px-6 py-4">
-      <p className="text-muted-foreground mb-3 text-[10px] font-bold tracking-widest uppercase">
-        참여자
-      </p>
-      <div className="flex flex-wrap gap-4">
-        {participants.map((p) => (
-          <ParticipantAvatar key={p.id} p={p} myId={myId} />
-        ))}
+    <>
+      <div className="relative z-20 flex flex-col gap-3 border-t px-6 py-4">
+        <p className="text-muted-foreground text-[10px] font-bold tracking-widest uppercase">
+          참여자
+        </p>
+        <div className="flex flex-wrap gap-4">
+          {isLoading
+            ? Array.from({ length: 3 }).map((_, i) => (
+                <div key={i} className="flex flex-col items-center gap-1">
+                  <div className="h-10 w-10 animate-pulse rounded-full bg-muted" />
+                  <div className="h-2.5 w-8 animate-pulse rounded bg-muted" />
+                  <div className="h-2 w-10 animate-pulse rounded bg-muted" />
+                </div>
+              ))
+            : participants.map((p) => (
+                <ParticipantAvatar
+                  key={p.id}
+                  p={p}
+                  myId={myId}
+                  onResetRequest={setResetTarget}
+                />
+              ))}
+        </div>
       </div>
-    </div>
+
+      <ResetDialog
+        target={resetTarget}
+        myId={myId}
+        onClose={() => setResetTarget(null)}
+      />
+    </>
   );
 }

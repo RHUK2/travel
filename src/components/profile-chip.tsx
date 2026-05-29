@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { LogOut } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
@@ -18,12 +18,8 @@ const AUTH_KEY = "travel_auth";
 const DEVICE_KEY = "travel_device_id";
 
 export function ProfileChip() {
-  const [profile, setProfile] = useState<{ name: string; deviceId: string } | null>(null);
-
-  useEffect(() => {
-    const stored = localStorage.getItem(AUTH_KEY);
-    setProfile(stored ? JSON.parse(stored) : null);
-  }, []);
+  const stored = typeof window !== "undefined" ? localStorage.getItem(AUTH_KEY) : null;
+  const profile: { name: string; deviceId: string } | null = stored ? JSON.parse(stored) : null;
   const [confirmOpen, setConfirmOpen] = useState(false);
 
   const { data: participants = [] } = useQuery({

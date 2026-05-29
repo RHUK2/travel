@@ -1,9 +1,12 @@
 "use client";
 
-import { Calendar, MapPin, Plane } from "lucide-react";
+import { Calendar, LogOut, MapPin, Plane } from "lucide-react";
+import { Button } from "@/components/ui/button";
 import { ThemeToggle } from "./theme-toggle";
 import { ParticipantsStrip } from "./participants-strip";
 import { ProfileChip } from "./profile-chip";
+import { CloudShape } from "./cloud-shape";
+import { SESSION_KEY } from "@/lib/constants";
 
 export function Hero() {
   return (
@@ -19,41 +22,35 @@ export function Hero() {
         aria-hidden="true"
       >
         {/* clouds */}
-        <div
-          className="absolute top-4 animate-[cloudDrift_28s_linear_infinite]"
-          style={{ left: "-140px" }}
-        >
-          <Cloud scale={0.7} opacity={0.9} />
+        <div className="absolute top-4 animate-[cloudDrift_28s_linear_-10s_infinite]" style={{ left: "-140px" }}>
+          <CloudShape scale={0.7} opacity={0.9} />
         </div>
-        <div
-          className="absolute top-3 animate-[cloudDrift_36s_linear_infinite_6s]"
-          style={{ left: "-110px" }}
-        >
-          <Cloud scale={0.55} opacity={0.7} />
+        <div className="absolute top-3 animate-[cloudDrift_36s_linear_-22s_infinite]" style={{ left: "-110px" }}>
+          <CloudShape scale={0.55} opacity={0.7} />
         </div>
-        <div
-          className="absolute top-1/2 animate-[cloudDrift_40s_linear_infinite_10s]"
-          style={{ left: "-120px" }}
-        >
-          <Cloud scale={0.5} opacity={0.65} />
+        <div className="absolute top-1/2 animate-[cloudDrift_40s_linear_-8s_infinite]" style={{ left: "-120px" }}>
+          <CloudShape scale={0.5} opacity={0.65} />
         </div>
-        <div
-          className="absolute top-1/3 animate-[cloudDrift_32s_linear_infinite_20s]"
-          style={{ left: "-130px" }}
-        >
-          <Cloud scale={0.6} opacity={0.6} />
+        <div className="absolute top-1/3 animate-[cloudDrift_32s_linear_-16s_infinite]" style={{ left: "-130px" }}>
+          <CloudShape scale={0.6} opacity={0.6} />
         </div>
-        <div
-          className="absolute bottom-10 animate-[cloudDrift_44s_linear_infinite_14s]"
-          style={{ left: "-100px" }}
-        >
-          <Cloud scale={0.5} opacity={0.55} />
+        <div className="absolute bottom-10 animate-[cloudDrift_44s_linear_-35s_infinite]" style={{ left: "-100px" }}>
+          <CloudShape scale={0.5} opacity={0.55} />
         </div>
-        <div
-          className="absolute bottom-6 animate-[cloudDrift_33s_linear_infinite_18s]"
-          style={{ left: "-120px" }}
-        >
-          <Cloud scale={0.45} opacity={0.5} />
+        <div className="absolute bottom-6 animate-[cloudDrift_33s_linear_-3s_infinite]" style={{ left: "-120px" }}>
+          <CloudShape scale={0.45} opacity={0.5} />
+        </div>
+        <div className="absolute top-8 animate-[cloudDrift_38s_linear_-30s_infinite]" style={{ left: "-140px" }}>
+          <CloudShape scale={0.4} opacity={0.55} />
+        </div>
+        <div className="absolute top-2/3 animate-[cloudDrift_30s_linear_-6s_infinite]" style={{ left: "-110px" }}>
+          <CloudShape scale={0.65} opacity={0.6} />
+        </div>
+        <div className="absolute bottom-4 animate-[cloudDrift_42s_linear_-19s_infinite]" style={{ left: "-130px" }}>
+          <CloudShape scale={0.35} opacity={0.45} />
+        </div>
+        <div className="absolute top-1/4 animate-[cloudDrift_50s_linear_-43s_infinite]" style={{ left: "-120px" }}>
+          <CloudShape scale={0.5} opacity={0.5} />
         </div>
       </div>
 
@@ -101,43 +98,23 @@ export function Hero() {
 
       <ParticipantsStrip />
 
-      {/* z-20 — profile chip + theme toggle */}
+      {/* z-20 — profile chip + logout + theme toggle */}
       <div className="absolute top-3 right-3 z-20 flex items-center gap-2">
         <ProfileChip />
+        <Button
+          variant="outline"
+          size="icon"
+          className="rounded-full"
+          onClick={() => {
+            localStorage.removeItem(SESSION_KEY);
+            window.location.reload();
+          }}
+        >
+          <LogOut className="h-4 w-4" />
+        </Button>
         <ThemeToggle />
       </div>
     </header>
-  );
-}
-
-function Cloud({ scale, opacity }: { scale: number; opacity: number }) {
-  return (
-    <div
-      style={{
-        transform: `scale(${scale})`,
-        opacity,
-        transformOrigin: "left center",
-      }}
-    >
-      <div className={`relative h-10 w-32`}>
-        {/* base */}
-        <div
-          className={`absolute inset-x-0 bottom-0 h-5 rounded-full bg-white`}
-        />
-        {/* left bump */}
-        <div
-          className={`absolute bottom-3 left-2 h-7 w-10 rounded-full bg-white`}
-        />
-        {/* center bump — tallest */}
-        <div
-          className={`absolute bottom-3 left-9 h-10 w-14 rounded-full bg-white`}
-        />
-        {/* right bump */}
-        <div
-          className={`absolute bottom-3 left-20 h-6 w-9 rounded-full bg-white`}
-        />
-      </div>
-    </div>
   );
 }
 
