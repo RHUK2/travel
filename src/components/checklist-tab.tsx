@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback } from "react";
-import { Plane, RotateCcw } from "lucide-react";
+import { RotateCcw } from "lucide-react";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
@@ -54,9 +54,8 @@ export function ChecklistTab() {
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
-        <h2 className="text-muted-foreground flex items-center gap-1.5 text-sm font-bold tracking-widest uppercase">
-          <Plane className="h-3.5 w-3.5" />
-          출발 전 체크리스트
+        <h2 className="text-muted-foreground text-sm font-bold tracking-widest uppercase">
+          ✈️ 출발 전 체크리스트
         </h2>
         <Button
           variant="outline"

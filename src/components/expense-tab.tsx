@@ -1,16 +1,16 @@
 "use client";
 
-import { useEffect, useCallback, useRef, Fragment } from "react";
-import { RotateCcw } from "lucide-react";
-import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { z } from "zod";
-import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Separator } from "@/components/ui/separator";
-import { useTripStore } from "@/store/trip-store";
 import { EXPENSE_ROWS } from "@/lib/trip-data";
+import { useTripStore } from "@/store/trip-store";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { RotateCcw } from "lucide-react";
+import { useCallback, useEffect, useRef } from "react";
+import { useForm } from "react-hook-form";
+import { z } from "zod";
 
 const budgetSchema = z.object(
   Object.fromEntries(EXPENSE_ROWS.map((r) => [r.id, z.string()])),
@@ -81,63 +81,49 @@ export function ExpenseTab() {
         </Button>
       </div>
 
-      <div className="overflow-hidden rounded-xl border">
-        <table className="w-full text-sm">
-          <thead>
-            <tr className="bg-muted/50 border-b">
-              <th className="text-muted-foreground px-4 py-2.5 text-left text-[10px] font-bold tracking-wider uppercase">
-                항목
-              </th>
-              <th className="text-muted-foreground px-4 py-2.5 text-left text-[10px] font-bold tracking-wider uppercase">
-                예상 금액
-              </th>
-              <th className="text-muted-foreground px-4 py-2.5 text-right text-[10px] font-bold tracking-wider uppercase">
-                내 예산(원)
-              </th>
-            </tr>
-          </thead>
-          <tbody>
-            {EXPENSE_ROWS.map((row) => (
-              <Fragment key={row.id}>
-                <tr className="border-b last:border-0">
-                  <td className="px-4 py-3">{row.label}</td>
-                  <td className="text-muted-foreground px-4 py-3">
-                    {row.estimate}
-                  </td>
-                  <td className="px-4 py-3 text-right">
-                    <Input
-                      type="number"
-                      min={0}
-                      step={10000}
-                      placeholder="0"
-                      {...register(row.id, {
-                        onChange: (e) => handleChange(row.id, e.target.value),
-                      })}
-                      className="w-24 text-right tabular-nums"
-                    />
-                  </td>
-                </tr>
-                {row.subRows?.map((sub, i) => (
-                  <tr
-                    key={`${row.id}_sub_${i}`}
-                    className="bg-muted/30 border-b last:border-0"
-                  >
-                    <td
-                      colSpan={3}
-                      className="text-muted-foreground px-4 py-2 text-xs"
-                    >
-                      {sub.label}
-                    </td>
-                  </tr>
-                ))}
-              </Fragment>
+      <div className="overflow-hidden rounded-xl border text-sm">
+        {/* 헤더: sm 이상에서만 표시 */}
+        <div className="bg-muted/50 hidden grid-cols-[1fr_1fr_auto] items-center border-b px-4 py-2.5 sm:grid">
+          <span className="text-muted-foreground text-[10px] font-bold tracking-wider uppercase">항목</span>
+          <span className="text-muted-foreground text-[10px] font-bold tracking-wider uppercase">예상 금액</span>
+          <span className="text-muted-foreground text-right text-[10px] font-bold tracking-wider uppercase">내 예산(원)</span>
+        </div>
+
+        {EXPENSE_ROWS.map((row) => (
+          <div key={row.id}>
+            {/* 모바일: 2줄 / 데스크탑: 1줄 3열 */}
+            <div className="border-b px-4 py-3 last:border-0 sm:grid sm:grid-cols-[1fr_1fr_auto] sm:items-center">
+              {/* 1열: 항목명 */}
+              <span className="block font-medium sm:font-normal">{row.label}</span>
+              {/* 2열 + 3열: 모바일에서 한 줄에 나란히 */}
+              <div className="mt-1.5 flex items-center justify-between sm:contents">
+                <span className="text-muted-foreground text-xs sm:text-sm">{row.estimate}</span>
+                <Input
+                  type="number"
+                  min={0}
+                  step={10000}
+                  placeholder="0"
+                  {...register(row.id, {
+                    onChange: (e) => handleChange(row.id, e.target.value),
+                  })}
+                  className="w-24 text-right tabular-nums"
+                />
+              </div>
+            </div>
+            {row.subRows?.map((sub, i) => (
+              <div
+                key={`${row.id}_sub_${i}`}
+                className="bg-muted/30 border-b px-4 py-2 text-xs text-muted-foreground last:border-0"
+              >
+                {sub.label}
+              </div>
             ))}
-          </tbody>
-        </table>
+          </div>
+        ))}
       </div>
 
       <Card className="border-green-200 bg-green-50 dark:border-green-900 dark:bg-green-950/50">
-        <CardContent className="flex items-center justify-between px-4 py-3">
+        <CardContent className="flex items-center justify-between px-4">
           <span className="font-semibold text-green-700 dark:text-green-400">
             💰 내 예산 합계
           </span>
