@@ -2,6 +2,7 @@ import { QueryProvider } from "@/components/query-provider";
 import type { Metadata } from "next";
 import { ThemeProvider } from "next-themes";
 import localFont from "next/font/local";
+import { Toaster } from "sonner";
 import "./globals.css";
 
 const pretendard = localFont({
@@ -50,6 +51,7 @@ export default function RootLayout({
           disableTransitionOnChange
         >
           <QueryProvider>{children}</QueryProvider>
+          <Toaster position="top-center" richColors />
         </ThemeProvider>
       </body>
     </html>

@@ -87,7 +87,7 @@ export function MapSection({ spots, color }: MapSectionProps) {
 
   return (
     <div className="overflow-hidden rounded-xl border">
-      <div className="relative">
+      <div className="relative z-0">
         <div ref={mapRef} className="h-[300px] w-full" />
         <Button
           variant="secondary"

@@ -31,12 +31,12 @@ export function DaySection({ day, isActive }: DaySectionProps) {
   const [memosOpen, setMemosOpen] = useState(false);
   const [deleteMemosOpen, setDeleteMemosOpen] = useState(false);
 
-  const { states, upsert } = useTripStore();
+  const { personalStates, upsertPersonal } = useTripStore();
 
   if (!isActive) return null;
 
   const hasTips = day.items.some((item) => item.tip);
-  const hasMemos = day.items.some((item) => states[item.id]?.memo);
+  const hasMemos = day.items.some((item) => personalStates[item.id]?.memo);
 
   const handleTipToggle = () => {
     if (tipsOpen) {
@@ -61,8 +61,8 @@ export function DaySection({ day, isActive }: DaySectionProps) {
   const handleDeleteAllMemos = async () => {
     await Promise.all(
       day.items
-        .filter((item) => states[item.id]?.memo)
-        .map((item) => upsert(item.id, { memo: "" })),
+        .filter((item) => personalStates[item.id]?.memo)
+        .map((item) => upsertPersonal(item.id, { memo: "" })),
     );
     setDeleteMemosOpen(false);
   };

@@ -2,7 +2,7 @@
 
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { DAYS } from "@/lib/trip-data";
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { AirportTab } from "./airport-tab";
 import { ChecklistTab } from "./checklist-tab";
 import { DaySection } from "./day-section";
@@ -20,6 +20,19 @@ export function TripTabs() {
   });
 
   const containerRef = useRef<HTMLDivElement>(null);
+  const [mask, setMask] = useState<"none" | "left" | "right" | "both">("none");
+
+  const updateMask = () => {
+    const el = containerRef.current;
+    if (!el) return;
+    const canLeft = el.scrollLeft > 0;
+    const canRight = el.scrollLeft + el.clientWidth < el.scrollWidth - 1;
+    if (canLeft && canRight) setMask("both");
+    else if (canLeft) setMask("left");
+    else if (canRight) setMask("right");
+    else setMask("none");
+  };
+
   const drag = useRef({
     active: false,
     startX: 0,
@@ -27,6 +40,19 @@ export function TripTabs() {
     moved: false,
   });
   const pendingTab = useRef<string | null>(null);
+
+  useEffect(() => {
+    const el = containerRef.current;
+    if (!el) return;
+    updateMask();
+    el.addEventListener("scroll", updateMask, { passive: true });
+    const ro = new ResizeObserver(updateMask);
+    ro.observe(el);
+    return () => {
+      el.removeEventListener("scroll", updateMask);
+      ro.disconnect();
+    };
+  }, []);
 
   const handleMouseDown = (e: React.MouseEvent<HTMLDivElement>) => {
     const el = containerRef.current;
@@ -74,13 +100,23 @@ export function TripTabs() {
       <div
         ref={containerRef}
         className="cursor-grab [scrollbar-width:none] overflow-x-auto overflow-y-hidden select-none active:cursor-grabbing [&::-webkit-scrollbar]:hidden"
+        style={{
+          maskImage:
+            mask === "both"
+              ? "linear-gradient(to right, transparent 0%, black 5%, black 95%, transparent 100%)"
+              : mask === "left"
+                ? "linear-gradient(to right, transparent 0%, black 5%)"
+                : mask === "right"
+                  ? "linear-gradient(to right, black 95%, transparent 100%)"
+                  : undefined,
+        }}
         onMouseDown={handleMouseDown}
         onMouseMove={handleMouseMove}
         onMouseUp={handleMouseUp}
         onMouseLeave={handleMouseUp}
         onClick={handleContainerClick}
       >
-        <TabsList className="gap-1.5 bg-transparent p-0 group-data-horizontal/tabs:h-auto">
+        <TabsList className="gap-1.5 bg-transparent px-0 group-data-horizontal/tabs:h-auto py-1">
           {DAYS.map((day, i) => (
             <TabsTrigger
               key={`day${day.day}`}
@@ -134,7 +170,7 @@ export function TripTabs() {
         </TabsContent>
       ))}
 
-      <TabsContent value="info" className="mt-6 space-y-8">
+      <TabsContent value="info" className="mt-6 flex flex-col gap-8">
         <ChecklistTab />
         <ExpenseTab />
       </TabsContent>

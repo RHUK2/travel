@@ -23,14 +23,14 @@ export function WeatherStrip() {
       <div className="hidden grid-cols-3 gap-3 sm:grid">
         {WEATHER.map((w) => (
           <Card key={w.label} className="text-center">
-            <CardContent className="px-3 py-4">
-              <p className="text-muted-foreground mb-1 text-[10px] font-bold tracking-wide uppercase">
+            <CardContent className="flex flex-col gap-1 px-3 py-4">
+              <p className="text-muted-foreground text-[10px] font-bold tracking-wide uppercase">
                 {w.label}
               </p>
               <div className="text-2xl">{w.icon}</div>
-              <p className="mt-1 text-sm font-semibold">{w.temp}</p>
+              <p className="text-sm font-semibold">{w.temp}</p>
               <p className="text-xs text-blue-500">{w.rain}</p>
-              <p className="text-muted-foreground mt-1 text-[10px]">{w.note}</p>
+              <p className="text-muted-foreground text-[10px]">{w.note}</p>
             </CardContent>
           </Card>
         ))}

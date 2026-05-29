@@ -70,8 +70,8 @@ export function ChecklistTab() {
       </div>
 
       {CHECKLIST_GROUPS.map((group) => (
-        <div key={group.label} className="space-y-1">
-          <p className="text-muted-foreground mb-2 text-[11px] font-bold tracking-widest uppercase">
+        <div key={group.label} className="flex flex-col gap-2">
+          <p className="text-muted-foreground text-[11px] font-bold tracking-widest uppercase">
             {group.label}
           </p>
           <div className="overflow-hidden rounded-xl border">
