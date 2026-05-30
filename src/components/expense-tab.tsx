@@ -25,7 +25,9 @@ export function ExpenseTab() {
 
   useEffect(() => {
     const timers = debounceTimers.current;
-    return () => { Object.values(timers).forEach(clearTimeout); };
+    return () => {
+      Object.values(timers).forEach(clearTimeout);
+    };
   }, []);
 
   const { register, watch, reset } = useForm<BudgetForm>({
@@ -84,9 +86,15 @@ export function ExpenseTab() {
       <div className="overflow-hidden rounded-xl border text-sm">
         {/* 헤더: sm 이상에서만 표시 */}
         <div className="bg-muted/50 hidden grid-cols-[1fr_1fr_auto] items-center border-b px-4 py-2.5 sm:grid">
-          <span className="text-muted-foreground text-[10px] font-bold tracking-wider uppercase">항목</span>
-          <span className="text-muted-foreground text-[10px] font-bold tracking-wider uppercase">예상 금액</span>
-          <span className="text-muted-foreground text-right text-[10px] font-bold tracking-wider uppercase">내 예산(원)</span>
+          <span className="text-muted-foreground text-[10px] font-bold tracking-wider uppercase">
+            항목
+          </span>
+          <span className="text-muted-foreground text-[10px] font-bold tracking-wider uppercase">
+            예상 금액
+          </span>
+          <span className="text-muted-foreground text-right text-[10px] font-bold tracking-wider uppercase">
+            내 예산(원)
+          </span>
         </div>
 
         {EXPENSE_ROWS.map((row) => (
@@ -94,10 +102,14 @@ export function ExpenseTab() {
             {/* 모바일: 2줄 / 데스크탑: 1줄 3열 */}
             <div className="border-b px-4 py-3 last:border-0 sm:grid sm:grid-cols-[1fr_1fr_auto] sm:items-center">
               {/* 1열: 항목명 */}
-              <span className="block font-medium sm:font-normal">{row.label}</span>
+              <span className="block font-medium sm:font-normal">
+                {row.label}
+              </span>
               {/* 2열 + 3열: 모바일에서 한 줄에 나란히 */}
               <div className="mt-1.5 flex items-center justify-between sm:contents">
-                <span className="text-muted-foreground text-xs sm:text-sm">{row.estimate}</span>
+                <span className="text-muted-foreground text-xs sm:text-sm">
+                  {row.estimate}
+                </span>
                 <Input
                   type="number"
                   min={0}
@@ -113,7 +125,7 @@ export function ExpenseTab() {
             {row.subRows?.map((sub, i) => (
               <div
                 key={`${row.id}_sub_${i}`}
-                className="bg-muted/30 border-b px-4 py-2 text-xs text-muted-foreground last:border-0"
+                className="bg-muted/30 text-muted-foreground border-b px-4 py-2 text-xs last:border-0"
               >
                 {sub.label}
               </div>
@@ -134,7 +146,7 @@ export function ExpenseTab() {
       </Card>
 
       <Separator />
-      <p className="text-muted-foreground whitespace-pre-line text-xs leading-relaxed">
+      <p className="text-muted-foreground text-xs leading-relaxed whitespace-pre-line">
         {EXPENSE_NOTE}
       </p>
     </div>

@@ -113,7 +113,7 @@ export function TripTabs() {
         onMouseLeave={handleMouseUp}
         onClick={handleContainerClick}
       >
-        <TabsList className="gap-1.5 bg-transparent px-0 group-data-horizontal/tabs:h-auto py-1">
+        <TabsList className="gap-1.5 bg-transparent px-0 py-1 group-data-horizontal/tabs:h-auto">
           {DAYS.map((day, i) => (
             <TabsTrigger
               key={`day${day.day}`}

@@ -11,14 +11,21 @@ import type { ItemState, PersonalState } from "@/lib/types";
 import { SESSION_KEY } from "@/lib/constants";
 
 export function RealtimeProvider({ children }: { children: React.ReactNode }) {
-  const { setItemStateFromRealtime, setAllItemStates, setPersonalState, setAllPersonalStates, setCurrentUser, currentUser } = useTripStore();
+  const {
+    setItemStateFromRealtime,
+    setAllItemStates,
+    setPersonalState,
+    setAllPersonalStates,
+    setCurrentUser,
+    currentUser,
+  } = useTripStore();
 
   useEffect(() => {
     const stored = localStorage.getItem(SESSION_KEY);
     if (stored) {
       setCurrentUser(JSON.parse(stored));
     }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const { data } = useQuery({
@@ -69,7 +76,9 @@ export function RealtimeProvider({ children }: { children: React.ReactNode }) {
       )
       .subscribe();
 
-    return () => { supabase.removeChannel(channel); };
+    return () => {
+      supabase.removeChannel(channel);
+    };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -97,7 +106,9 @@ export function RealtimeProvider({ children }: { children: React.ReactNode }) {
       )
       .subscribe();
 
-    return () => { supabase.removeChannel(channel); };
+    return () => {
+      supabase.removeChannel(channel);
+    };
   }, [currentUser, setPersonalState]);
 
   return <>{children}</>;

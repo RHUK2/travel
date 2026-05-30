@@ -34,7 +34,7 @@ export function AirportTab() {
             value={`block-${idx}`}
             className="overflow-hidden rounded-xl border"
           >
-            <AccordionTrigger className="px-4 py-3.5 hover:bg-muted/50 hover:no-underline rounded-none">
+            <AccordionTrigger className="hover:bg-muted/50 rounded-none px-4 py-3.5 hover:no-underline">
               <span className="flex flex-1 items-center justify-between pr-2">
                 <span className="font-semibold">{block.title}</span>
                 <span className="text-muted-foreground text-xs">
@@ -57,7 +57,10 @@ export function AirportTab() {
                         {step.num}
                       </span>
                       <div className="flex flex-1 flex-col gap-1.5">
-                        <Badge variant="secondary" className="w-fit rounded-full text-[10px] font-bold tracking-wide">
+                        <Badge
+                          variant="secondary"
+                          className="w-fit rounded-full text-[10px] font-bold tracking-wide"
+                        >
                           {step.tag}
                         </Badge>
                         <div className="font-semibold">{step.title}</div>

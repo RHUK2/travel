@@ -37,50 +37,105 @@ export const useTripStore = create<TripStore>()(
       pendingItems: {},
 
       setItemState: (itemId, patch) =>
-        set((s) => {
-          const current = s.states[itemId];
-          if (current && Object.entries(patch).every(([k, v]) => current[k as keyof ItemState] === v)) return;
-          s.states[itemId] = { ...current, ...patch } as ItemState;
-        }, false, "setItemState"),
+        set(
+          (s) => {
+            const current = s.states[itemId];
+            if (
+              current &&
+              Object.entries(patch).every(
+                ([k, v]) => current[k as keyof ItemState] === v,
+              )
+            )
+              return;
+            s.states[itemId] = { ...current, ...patch } as ItemState;
+          },
+          false,
+          "setItemState",
+        ),
 
       setItemStateFromRealtime: (itemId, patch) =>
-        set((s) => {
-          if (s.pendingItems[itemId]) return;
-          const current = s.states[itemId];
-          if (current && Object.entries(patch).every(([k, v]) => current[k as keyof ItemState] === v)) return;
-          s.states[itemId] = { ...current, ...patch } as ItemState;
-        }, false, "setItemStateFromRealtime"),
+        set(
+          (s) => {
+            if (s.pendingItems[itemId]) return;
+            const current = s.states[itemId];
+            if (
+              current &&
+              Object.entries(patch).every(
+                ([k, v]) => current[k as keyof ItemState] === v,
+              )
+            )
+              return;
+            s.states[itemId] = { ...current, ...patch } as ItemState;
+          },
+          false,
+          "setItemStateFromRealtime",
+        ),
 
       setAllItemStates: (rows) =>
-        set((s) => {
-          for (const row of rows) s.states[row.item_id] = row;
-        }, false, "setAllItemStates"),
+        set(
+          (s) => {
+            for (const row of rows) s.states[row.item_id] = row;
+          },
+          false,
+          "setAllItemStates",
+        ),
 
       setPersonalState: (itemId, patch) =>
-        set((s) => {
-          const current = s.personalStates[itemId];
-          if (current && Object.entries(patch).every(([k, v]) => current[k as keyof PersonalState] === v)) return;
-          s.personalStates[itemId] = { ...current, ...patch } as PersonalState;
-        }, false, "setPersonalState"),
+        set(
+          (s) => {
+            const current = s.personalStates[itemId];
+            if (
+              current &&
+              Object.entries(patch).every(
+                ([k, v]) => current[k as keyof PersonalState] === v,
+              )
+            )
+              return;
+            s.personalStates[itemId] = {
+              ...current,
+              ...patch,
+            } as PersonalState;
+          },
+          false,
+          "setPersonalState",
+        ),
 
       setAllPersonalStates: (rows) =>
-        set((s) => {
-          for (const row of rows) s.personalStates[row.item_id] = row;
-        }, false, "setAllPersonalStates"),
+        set(
+          (s) => {
+            for (const row of rows) s.personalStates[row.item_id] = row;
+          },
+          false,
+          "setAllPersonalStates",
+        ),
 
       setCurrentUser: (user) =>
-        set((s) => { s.currentUser = user; }, false, "setCurrentUser"),
+        set(
+          (s) => {
+            s.currentUser = user;
+          },
+          false,
+          "setCurrentUser",
+        ),
 
       upsert: (itemId, patch) => {
         get().setItemState(itemId, patch);
-        set((s) => { s.pendingItems[itemId] = true; });
+        set((s) => {
+          s.pendingItems[itemId] = true;
+        });
         const existing = upsertTimers.get(itemId);
         if (existing) clearTimeout(existing);
         const timer = setTimeout(async () => {
           upsertTimers.delete(itemId);
           const current = get().states[itemId];
-          await upsertItemState(itemId, { is_done: current?.is_done ?? false }, current);
-          set((s) => { delete s.pendingItems[itemId]; });
+          await upsertItemState(
+            itemId,
+            { is_done: current?.is_done ?? false },
+            current,
+          );
+          set((s) => {
+            delete s.pendingItems[itemId];
+          });
         }, 300);
         upsertTimers.set(itemId, timer);
       },

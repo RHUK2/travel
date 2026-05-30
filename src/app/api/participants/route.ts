@@ -8,6 +8,7 @@ export async function GET() {
     .select("*")
     .eq("trip_id", TRIP_ID)
     .order("joined_at");
-  if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+  if (error)
+    return NextResponse.json({ error: error.message }, { status: 500 });
   return NextResponse.json(data ?? []);
 }

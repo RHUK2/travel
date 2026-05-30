@@ -17,7 +17,10 @@ export async function POST(req: NextRequest) {
     .single();
 
   if (fetchError || !participant) {
-    return NextResponse.json({ error: "참여자를 찾을 수 없습니다" }, { status: 404 });
+    return NextResponse.json(
+      { error: "참여자를 찾을 수 없습니다" },
+      { status: 404 },
+    );
   }
 
   if (participant.photo_url) {
@@ -32,7 +35,10 @@ export async function POST(req: NextRequest) {
     .eq("id", userId);
 
   if (updateError) {
-    return NextResponse.json({ error: "서버 오류가 발생했습니다" }, { status: 500 });
+    return NextResponse.json(
+      { error: "서버 오류가 발생했습니다" },
+      { status: 500 },
+    );
   }
 
   return NextResponse.json({ ok: true });

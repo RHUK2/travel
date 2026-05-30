@@ -12,7 +12,10 @@ import {
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 
-async function getCroppedBlob(imageSrc: string, croppedAreaPixels: Area): Promise<Blob> {
+async function getCroppedBlob(
+  imageSrc: string,
+  croppedAreaPixels: Area,
+): Promise<Blob> {
   const image = new Image();
   image.src = imageSrc;
   await new Promise<void>((resolve) => {
@@ -51,7 +54,12 @@ interface CropDialogProps {
   onCancel: () => void;
 }
 
-export function CropDialog({ open, imageSrc, onConfirm, onCancel }: CropDialogProps) {
+export function CropDialog({
+  open,
+  imageSrc,
+  onConfirm,
+  onCancel,
+}: CropDialogProps) {
   const [crop, setCrop] = useState({ x: 0, y: 0 });
   const [zoom, setZoom] = useState(1);
   const [croppedAreaPixels, setCroppedAreaPixels] = useState<Area | null>(null);

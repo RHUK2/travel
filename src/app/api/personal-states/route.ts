@@ -9,6 +9,7 @@ export async function POST(req: NextRequest) {
     .select("*")
     .eq("trip_id", TRIP_ID)
     .eq("user_id", userId);
-  if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+  if (error)
+    return NextResponse.json({ error: error.message }, { status: 500 });
   return NextResponse.json(data ?? []);
 }

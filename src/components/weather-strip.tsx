@@ -8,12 +8,17 @@ export function WeatherStrip() {
       <Card className="sm:hidden">
         <CardContent className="flex divide-x px-0 py-2">
           {WEATHER.map((w) => (
-            <div key={w.label} className="flex flex-1 flex-col items-center gap-0.5 px-2">
+            <div
+              key={w.label}
+              className="flex flex-1 flex-col items-center gap-0.5 px-2"
+            >
               <p className="text-muted-foreground text-[10px] font-bold tracking-wide uppercase">
                 {w.label.split("·")[0].trim()}
               </p>
               <span className="text-xl">{w.icon}</span>
-              <p className="text-xs font-semibold">{w.temp.split("~")[1]?.trim() ?? w.temp}</p>
+              <p className="text-xs font-semibold">
+                {w.temp.split("~")[1]?.trim() ?? w.temp}
+              </p>
             </div>
           ))}
         </CardContent>

@@ -7,7 +7,8 @@ export async function GET() {
     .from("item_states")
     .select("*")
     .eq("trip_id", TRIP_ID);
-  if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+  if (error)
+    return NextResponse.json({ error: error.message }, { status: 500 });
   return NextResponse.json(data ?? []);
 }
 
@@ -22,6 +23,7 @@ export async function POST(req: NextRequest) {
     },
     { onConflict: "trip_id,item_id" },
   );
-  if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+  if (error)
+    return NextResponse.json({ error: error.message }, { status: 500 });
   return NextResponse.json({ ok: true });
 }

@@ -9,6 +9,7 @@ export async function POST(req: NextRequest) {
     .update(patch)
     .eq("trip_id", TRIP_ID)
     .eq("id", id);
-  if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+  if (error)
+    return NextResponse.json({ error: error.message }, { status: 500 });
   return NextResponse.json({ ok: true });
 }

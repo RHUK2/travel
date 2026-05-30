@@ -95,7 +95,9 @@ export function TimelineItem({
   const debounceTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   useEffect(() => {
-    return () => { if (debounceTimer.current) clearTimeout(debounceTimer.current); };
+    return () => {
+      if (debounceTimer.current) clearTimeout(debounceTimer.current);
+    };
   }, []);
 
   const { register, watch, setValue, getValues } = useForm<MemoForm>({
@@ -231,7 +233,10 @@ export function TimelineItem({
                   variant="outline"
                   size="sm"
                   className="h-6 gap-1 rounded-full px-2.5 text-[11px]"
-                  onClick={(e) => { e.stopPropagation(); setTipOpen((v) => !v); }}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setTipOpen((v) => !v);
+                  }}
                 >
                   {tipOpen ? (
                     <ChevronUp className="h-3 w-3" />
@@ -248,7 +253,10 @@ export function TimelineItem({
                   "h-6 gap-1 rounded-full px-2.5 text-[11px]",
                   memoValue && "border-primary",
                 )}
-                onClick={(e) => { e.stopPropagation(); setMemoOpen((v) => !v); }}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setMemoOpen((v) => !v);
+                }}
               >
                 <PenLine className="h-3 w-3" />
                 메모{memoValue ? " ●" : ""}
@@ -258,7 +266,10 @@ export function TimelineItem({
                   variant="ghost"
                   size="sm"
                   className="text-muted-foreground hover:text-destructive h-6 w-6 rounded-full p-0"
-                  onClick={(e) => { e.stopPropagation(); setDeleteOpen(true); }}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setDeleteOpen(true);
+                  }}
                 >
                   <Trash2 className="h-3 w-3" />
                 </Button>
@@ -299,7 +310,7 @@ export function TimelineItem({
                     onChange: (e) => handleMemoChange(e.target.value),
                   })}
                   placeholder="메모를 입력하세요…"
-                  className="min-h-[72px] resize-y text-sm "
+                  className="min-h-[72px] resize-y text-sm"
                   onClick={(e) => e.stopPropagation()}
                 />
               </div>

@@ -2,7 +2,9 @@ import type { PersonalState } from "@/lib/types";
 
 export type { PersonalState };
 
-export async function fetchPersonalStates(userId: string): Promise<PersonalState[]> {
+export async function fetchPersonalStates(
+  userId: string,
+): Promise<PersonalState[]> {
   const res = await fetch("/api/personal-states", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
