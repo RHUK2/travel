@@ -22,15 +22,17 @@ const SESSION_KEY = "travel_session";
 
 function ParticipantAvatar({
   p,
+  isMe,
   onResetRequest,
 }: {
   p: Participant;
+  isMe: boolean;
   onResetRequest: (p: Participant) => void;
 }) {
   return (
     <div className="group flex flex-col items-center gap-1">
       <div className="relative">
-        <Avatar className="h-10 w-10 border-2 border-background shadow-sm">
+        <Avatar className={`h-10 w-10 border-2 shadow-sm ${isMe ? "border-sky-400 ring-2 ring-sky-400/40" : "border-background"}`}>
           <AvatarImage src={p.photo_url || undefined} alt={p.name} />
           <AvatarFallback className="bg-sky-100 text-sm font-bold text-sky-700 dark:bg-sky-950 dark:text-sky-300">
             {p.name.slice(0, 1)}
@@ -45,7 +47,7 @@ function ParticipantAvatar({
           <X className="h-4 w-4 text-white" />
         </Button>
       </div>
-      <span className="text-[11px] font-medium">{p.name}</span>
+      <span className="text-[11px] font-medium">{p.name}{isMe && <span className="ml-1 text-[9px] font-semibold text-sky-500">나</span>}</span>
       {p.message && (
         <span className="text-muted-foreground max-w-[64px] truncate text-[10px]">
           {p.message}
@@ -220,6 +222,7 @@ export function ParticipantsStrip() {
                 <ParticipantAvatar
                   key={p.id}
                   p={p}
+                  isMe={p.id === myId}
                   onResetRequest={setResetTarget}
                 />
               ))}
