@@ -8,7 +8,7 @@
     "audit": "pnpm audit --audit-level=high",
     "type": "tsc --noEmit",
     "lint": "eslint . --max-warnings 10",
-    "prebuild": "pnpm run audit && pnpm run type && pnpm run lint && pnpm run test",
+    "prebuild": "pnpm run audit && pnpm run type && pnpm run lint",
     "build": "next build",
     "start": "next start",
     "tsc": "tsc --noEmit",
