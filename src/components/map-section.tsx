@@ -35,7 +35,7 @@ export function MapSection({ spots, color }: MapSectionProps) {
 
       const map = L.map(mapRef.current!, {
         zoomControl: true,
-        scrollWheelZoom: false,
+        scrollWheelZoom: true,
       });
       mapInstanceRef.current = map;
 
