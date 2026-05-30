@@ -1,6 +1,19 @@
 import type { DayData, WeatherDay, ChecklistGroup, ExpenseRow } from "./types";
 
 export const TRIP_ID = "yonago-2026";
+export const TRIP_NAME = "요나고 2박 3일 여행";
+export const TRIP_SHORT_NAME = "요나고 여행";
+export const TRIP_SUBTITLE = "Yonago · Jun 2026";
+export const TRIP_LOCATION = "돗토리현 · 일본";
+export const TRIP_DESCRIPTION = "돗토리현 · 요나고 · 2026.6.1–6.3";
+export const TRIP_DATES = "6.1 – 6.3";
+export const TRIP_ROUTE = "인천 ↔ 요나고";
+
+export const DAY_LABELS = ["🏯 요나고", "🏖️ 돗토리·구라요시", "🎨 아다치·귀국"];
+
+export const EXPENSE_NOTE = `· 환율 기준: 9.44원/엔 (2026년 5월)
+· 숙박 등급 및 식비 수준에 따라 크게 달라질 수 있음
+· 쇼핑 예산은 개인 취향에 따라 조정`;
 
 export const WEATHER: WeatherDay[] = [
   {

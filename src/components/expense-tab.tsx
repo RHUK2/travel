@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Separator } from "@/components/ui/separator";
-import { EXPENSE_ROWS } from "@/lib/trip-data";
+import { EXPENSE_NOTE, EXPENSE_ROWS } from "@/lib/trip-data";
 import { useTripStore } from "@/store/trip-store";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { RotateCcw } from "lucide-react";
@@ -134,11 +134,8 @@ export function ExpenseTab() {
       </Card>
 
       <Separator />
-      <p className="text-muted-foreground text-xs leading-relaxed">
-        · 환율 기준: 9.44원/엔 (2026년 5월)
-        <br />
-        · 숙박 등급 및 식비 수준에 따라 크게 달라질 수 있음
-        <br />· 쇼핑 예산은 개인 취향에 따라 조정
+      <p className="text-muted-foreground whitespace-pre-line text-xs leading-relaxed">
+        {EXPENSE_NOTE}
       </p>
     </div>
   );

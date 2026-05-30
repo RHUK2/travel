@@ -1,7 +1,5 @@
 "use client";
 
-import { Info } from "lucide-react";
-import { cn } from "@/lib/utils";
 import {
   Accordion,
   AccordionContent,
@@ -10,165 +8,9 @@ import {
 } from "@/components/ui/accordion";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
-
-interface AirportStep {
-  num: number;
-  tag: string;
-  title: string;
-  body: string;
-  tip?: string;
-}
-
-interface AirportBlock {
-  title: string;
-  steps: AirportStep[];
-}
-
-const BLOCKS: AirportBlock[] = [
-  {
-    title: "🇰🇷 인천공항 출국 절차 (한국 출발)",
-    steps: [
-      {
-        num: 1,
-        tag: "공항 도착",
-        title: "출발 2시간 30분~3시간 전 도착",
-        body: "터미널 확인 필수 — 항공사마다 다름. 공항철도 직통 서울역→인천 43분.",
-        tip: "이 일정 기준: 13:25 출발 → 10:30~11:00 공항 도착 권장.",
-      },
-      {
-        num: 2,
-        tag: "체크인",
-        title: "탑승 수속 + 수하물 위탁",
-        body: "카운터 줄 서기 또는 셀프 키오스크로 탑승권 발급. 보조배터리·라이터는 기내 직접 소지.",
-      },
-      {
-        num: 3,
-        tag: "보안 검색",
-        title: "3층 출국장 → 보안 검색대 통과",
-        body: "액체류 100ml 이하 + 지퍼백 포장. 노트북·태블릿은 가방에서 꺼내기.",
-      },
-      {
-        num: 4,
-        tag: "출국심사",
-        title: "자동화 게이트 (스마트 출입국)",
-        body: "만 19세 이상 내국인은 자동화 게이트 이용 가능 — 여권 스캔 후 바로 통과.",
-        tip: "사전 등록 없이 당일 여권으로 바로 이용 가능.",
-      },
-      {
-        num: 5,
-        tag: "면세 & 탑승",
-        title: "면세점 이용 후 탑승 게이트 이동",
-        body: "인천공항은 규모가 크므로 게이트까지 이동 시간 10~15분 고려.",
-      },
-    ],
-  },
-  {
-    title: "🛬 입국 절차 (요나고 공항 도착)",
-    steps: [
-      {
-        num: 1,
-        tag: "검역",
-        title: "검역 통과",
-        body: "Visit Japan Web 등록 완료 시 QR 제시로 신속 통과.",
-      },
-      {
-        num: 2,
-        tag: "입국심사",
-        title: "여권 심사 + 지문·사진 촬영",
-        body: "외국인 심사대 줄 서기 → 여권 제출 → 양 검지 지문 채취 → 카메라 촬영.",
-        tip: "소요시간 5~20분. 요나고 공항은 소규모라 대기 짧음.",
-      },
-      {
-        num: 3,
-        tag: "수하물",
-        title: "짐 찾기",
-        body: "전광판에서 항공편(인천→요나고) 벨트 번호 확인 후 수취.",
-      },
-      {
-        num: 4,
-        tag: "세관",
-        title: "세관 신고",
-        body: "신고 물품 없으면 면세 통로(녹색 라인)로 통과. 면세 한도: 주류 3병 · 담배 200개비.",
-        tip: "초콜릿·과자 등 식품 반입은 대부분 허용.",
-      },
-      {
-        num: 5,
-        tag: "도착 로비",
-        title: "입국 완료 → JR 탑승",
-        body: "출구에서 도보 5분으로 요나고공항역 도착. JR 사카이선 요나고역 방면 탑승 · 약 15분.",
-      },
-    ],
-  },
-  {
-    title: "🛫 출국 절차 (요나고 공항 출발)",
-    steps: [
-      {
-        num: 1,
-        tag: "공항 도착",
-        title: "출발 2시간 전까지 공항 도착",
-        body: "국제선 체크인 마감은 출발 1시간 30분 전.",
-        tip: "이 일정 기준: 15:50 출발 → 13:30~14:00 공항 도착 권장.",
-      },
-      {
-        num: 2,
-        tag: "체크인",
-        title: "탑승 수속 + 수하물 위탁",
-        body: "여권 + 항공권(e-티켓 캡처 or 앱) 제시. 보조배터리·라이터는 기내 직접 소지.",
-      },
-      {
-        num: 3,
-        tag: "보안 검색",
-        title: "보안 검색대 통과",
-        body: "액체류 100ml 이하 지퍼백 포장. 일본 공항은 신발을 벗지 않아도 됨.",
-      },
-      {
-        num: 4,
-        tag: "출국심사",
-        title: "여권 + 탑승권 제시",
-        body: "외국인 유인 심사대 또는 자동화 게이트 이용. 지문 채취 후 출국 스탬프.",
-        tip: "일본 출국세 1,000엔은 항공권 요금에 포함.",
-      },
-      {
-        num: 5,
-        tag: "탑승 대기",
-        title: "면세 구역 · 탑승",
-        body: "요나고 공항은 소규모라 면세점 제한적. 탑승 시작 15분 전까지 게이트 도착.",
-        tip: "엔화 잔돈은 출국 전 편의점·자판기 활용.",
-      },
-    ],
-  },
-  {
-    title: "🇰🇷 인천공항 입국 절차 (한국 도착)",
-    steps: [
-      {
-        num: 1,
-        tag: "입국심사",
-        title: "자동입국심사 or 유인 심사대",
-        body: "한국인은 자동화 게이트(스마트 출입국) 이용 가능. 소요 1~3분.",
-      },
-      {
-        num: 2,
-        tag: "수하물",
-        title: "수하물 벨트에서 짐 찾기",
-        body: "도착 모니터에서 편명으로 벨트 번호 확인.",
-      },
-      {
-        num: 3,
-        tag: "세관 신고",
-        title: "세관 신고 (해외 구매 물품)",
-        body: "면세 한도: 미화 800달러 이하. 초과 시 세관 신고서 작성.",
-        tip: "Visit Korea 앱 또는 자진신고 키오스크로 신고하면 30% 관세 감면.",
-      },
-      {
-        num: 4,
-        tag: "입국 완료",
-        title: "입국장 → 귀가",
-        body: "직통 열차: 인천공항 → 서울역 약 43분. 일반 열차: 약 66분.",
-        tip: "인천공항 → 서울 심야에도 공항버스 운행.",
-      },
-    ],
-  },
-];
+import { AIRPORT_BLOCKS, AIRPORT_NOTE } from "@/lib/airport-data";
+import { cn } from "@/lib/utils";
+import { Info } from "lucide-react";
 
 export function AirportTab() {
   return (
@@ -178,24 +20,21 @@ export function AirportTab() {
         <CardContent className="flex gap-3 px-4 py-3.5">
           <Info className="text-muted-foreground h-4 w-4 shrink-0 self-start" />
           <div className="flex flex-col gap-0.5">
-            <p className="font-semibold">📱 Visit Japan Web 사전 등록 권장</p>
-            <p className="text-muted-foreground text-sm">
-              입국심사·세관신고를 QR코드 하나로 처리 가능. 출발 전 스마트폰에서
-              미리 등록해두면 공항에서 훨씬 빠름.
-            </p>
+            <p className="font-semibold">{AIRPORT_NOTE.title}</p>
+            <p className="text-muted-foreground text-sm">{AIRPORT_NOTE.body}</p>
           </div>
         </CardContent>
       </Card>
 
       {/* Accordion */}
       <Accordion type="multiple" className="flex flex-col gap-2">
-        {BLOCKS.map((block, idx) => (
+        {AIRPORT_BLOCKS.map((block, idx) => (
           <AccordionItem
             key={block.title}
             value={`block-${idx}`}
             className="overflow-hidden rounded-xl border"
           >
-            <AccordionTrigger className="px-4 py-3.5 hover:bg-muted/50 hover:no-underline">
+            <AccordionTrigger className="px-4 py-3.5 hover:bg-muted/50 hover:no-underline rounded-none">
               <span className="flex flex-1 items-center justify-between pr-2">
                 <span className="font-semibold">{block.title}</span>
                 <span className="text-muted-foreground text-xs">

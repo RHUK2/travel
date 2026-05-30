@@ -16,6 +16,13 @@ import { ParticipantsStrip } from "./participants-strip";
 import { ProfileChip } from "./profile-chip";
 import { CloudShape } from "./cloud-shape";
 import { AUTH_KEY, DEVICE_KEY, SESSION_KEY } from "@/lib/constants";
+import {
+  TRIP_DATES,
+  TRIP_LOCATION,
+  TRIP_NAME,
+  TRIP_ROUTE,
+  TRIP_SUBTITLE,
+} from "@/lib/trip-data";
 
 export function Hero() {
   const [confirmOpen, setConfirmOpen] = useState(false);
@@ -92,24 +99,24 @@ export function Hero() {
       <div className="relative z-20 px-6 pt-12 pb-8 text-center">
         <p className="text-muted-foreground mb-4 inline-flex items-center gap-1.5 text-xs font-semibold tracking-[3px] uppercase">
           <MapPin className="h-3 w-3" />
-          돗토리현 · 일본
+          {TRIP_LOCATION}
         </p>
 
         <h1 className="text-4xl font-bold tracking-tight">
-          요나고 2박 3일 여행
+          {TRIP_NAME}
         </h1>
         <p className="text-muted-foreground/70 mt-1.5 text-sm font-medium tracking-[5px] uppercase">
-          Yonago · Jun 2026
+          {TRIP_SUBTITLE}
         </p>
 
         <div className="mt-6 flex flex-wrap justify-center gap-2.5">
           <div className="bg-background/70 dark:bg-background/50 flex items-center gap-1.5 rounded-full border px-4 py-2 text-sm font-medium shadow-sm backdrop-blur-sm">
             <Calendar className="h-3.5 w-3.5 text-sky-500" />
-            6.1 – 6.3
+            {TRIP_DATES}
           </div>
           <div className="bg-background/70 dark:bg-background/50 flex items-center gap-1.5 rounded-full border px-4 py-2 text-sm font-medium shadow-sm backdrop-blur-sm">
             <Plane className="h-3.5 w-3.5 text-sky-500" />
-            인천 ↔ 요나고
+            {TRIP_ROUTE}
           </div>
         </div>
       </div>

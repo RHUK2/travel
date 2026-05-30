@@ -12,7 +12,7 @@ import { CloudShape } from "@/components/cloud-shape";
 import { SESSION_KEY } from "@/lib/constants";
 import { updateParticipantProfile, uploadAvatar } from "@/lib/participants-queries";
 import { supabase } from "@/lib/supabase";
-import { TRIP_ID } from "@/lib/trip-data";
+import { TRIP_ID, TRIP_LOCATION, TRIP_NAME, TRIP_SUBTITLE } from "@/lib/trip-data";
 import type { Session } from "@/lib/types";
 import { cn } from "@/lib/utils";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -400,13 +400,13 @@ export function PasscodeGate({ children }: { children: React.ReactNode }) {
         <div className="mb-8 text-center">
           <p className="text-muted-foreground mb-2 inline-flex items-center gap-1.5 text-xs font-semibold tracking-[3px] uppercase">
             <MapPin className="h-3 w-3" />
-            돗토리현 · 일본
+            {TRIP_LOCATION}
           </p>
           <h1 className="text-3xl font-bold tracking-tight">
-            요나고 2박 3일 여행
+            {TRIP_NAME}
           </h1>
           <p className="text-muted-foreground/70 mt-1 text-sm font-medium tracking-[4px] uppercase">
-            Yonago · Jun 2026
+            {TRIP_SUBTITLE}
           </p>
         </div>
 

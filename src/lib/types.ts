@@ -72,6 +72,19 @@ export interface PersonalState {
   updated_at: string;
 }
 
+export interface AirportStep {
+  num: number;
+  tag: string;
+  title: string;
+  body: string;
+  tip?: string;
+}
+
+export interface AirportBlock {
+  title: string;
+  steps: AirportStep[];
+}
+
 export interface Session {
   id: string;
   name: string;

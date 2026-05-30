@@ -1,5 +1,6 @@
 import { AddToHomeScreenBanner } from "@/components/add-to-homescreen-banner";
 import { QueryProvider } from "@/components/query-provider";
+import { TRIP_DESCRIPTION, TRIP_NAME } from "@/lib/trip-data";
 import type { Metadata } from "next";
 import { ThemeProvider } from "next-themes";
 import localFont from "next/font/local";
@@ -21,8 +22,8 @@ const tossface = localFont({
 });
 
 export const metadata: Metadata = {
-  title: "요나고 2박 3일 여행",
-  description: "돗토리현 · 요나고 · 2026.6.1–6.3",
+  title: TRIP_NAME,
+  description: TRIP_DESCRIPTION,
   manifest: "/manifest.webmanifest",
 };
 

@@ -1,10 +1,11 @@
+import { TRIP_DESCRIPTION, TRIP_NAME, TRIP_SHORT_NAME } from "@/lib/trip-data";
 import type { MetadataRoute } from "next";
 
 export default function manifest(): MetadataRoute.Manifest {
   return {
-    name: "요나고 2박 3일 여행",
-    short_name: "요나고 여행",
-    description: "돗토리현 · 요나고 · 2026.6.1–6.3",
+    name: TRIP_NAME,
+    short_name: TRIP_SHORT_NAME,
+    description: TRIP_DESCRIPTION,
     start_url: "/",
     display: "standalone",
     background_color: "#09090b",
