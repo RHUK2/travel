@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect } from "react";
-import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/lib/supabase";
 import { fetchItemStates } from "@/lib/queries";
 import { fetchPersonalStates } from "@/lib/personal-queries";
@@ -11,8 +11,7 @@ import type { ItemState, PersonalState } from "@/lib/types";
 import { SESSION_KEY } from "@/lib/constants";
 
 export function RealtimeProvider({ children }: { children: React.ReactNode }) {
-  const { setItemState, setPersonalState, setCurrentUser, currentUser } = useTripStore();
-  const queryClient = useQueryClient();
+  const { setItemStateFromRealtime, setAllItemStates, setPersonalState, setAllPersonalStates, setCurrentUser, currentUser } = useTripStore();
 
   useEffect(() => {
     const stored = localStorage.getItem(SESSION_KEY);
@@ -37,13 +36,13 @@ export function RealtimeProvider({ children }: { children: React.ReactNode }) {
 
   useEffect(() => {
     if (!data) return;
-    for (const row of data) setItemState(row.item_id, row);
+    setAllItemStates(data);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [data]);
 
   useEffect(() => {
     if (!personalData) return;
-    for (const row of personalData) setPersonalState(row.item_id, row);
+    setAllPersonalStates(personalData);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [personalData]);
 
@@ -64,17 +63,7 @@ export function RealtimeProvider({ children }: { children: React.ReactNode }) {
             payload.eventType === "UPDATE"
           ) {
             const row = payload.new as ItemState;
-            setItemState(row.item_id, row);
-            queryClient.setQueryData(
-              ["item_states"],
-              (old: ItemState[] | undefined) => {
-                if (!old) return [row];
-                const idx = old.findIndex((r) => r.item_id === row.item_id);
-                if (idx >= 0)
-                  return old.map((r, i) => (i === idx ? { ...r, ...row } : r));
-                return [...old, row];
-              },
-            );
+            setItemStateFromRealtime(row.item_id, row);
           }
         },
       )
