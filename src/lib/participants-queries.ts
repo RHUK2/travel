@@ -13,14 +13,6 @@ export async function fetchParticipants(): Promise<Participant[]> {
   return res.json();
 }
 
-export async function deleteAvatar(photoUrl: string): Promise<void> {
-  await fetch("/api/participants/delete-avatar", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ photoUrl }),
-  });
-}
-
 export async function updateParticipantProfile(
   id: string,
   patch: { photo_url?: string; message?: string },
@@ -33,16 +25,10 @@ export async function updateParticipantProfile(
   if (!res.ok) throw new Error("Failed to update participant profile");
 }
 
-export async function deleteParticipant(id: string): Promise<void> {
-  const res = await fetch("/api/participants/delete", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ id }),
-  });
-  if (!res.ok) throw new Error("Failed to delete participant");
-}
-
-export async function uploadAvatar(deviceId: string, blob: Blob): Promise<string> {
+export async function uploadAvatar(
+  deviceId: string,
+  blob: Blob,
+): Promise<string> {
   const formData = new FormData();
   formData.append("deviceId", deviceId);
   formData.append("file", blob);

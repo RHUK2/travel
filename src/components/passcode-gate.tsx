@@ -10,9 +10,17 @@ import {
 } from "@/components/ui/input-group";
 import { CloudShape } from "@/components/cloud-shape";
 import { SESSION_KEY } from "@/lib/constants";
-import { updateParticipantProfile, uploadAvatar } from "@/lib/participants-queries";
+import {
+  updateParticipantProfile,
+  uploadAvatar,
+} from "@/lib/participants-queries";
 import { supabase } from "@/lib/supabase";
-import { TRIP_ID, TRIP_LOCATION, TRIP_NAME, TRIP_SUBTITLE } from "@/lib/trip-data";
+import {
+  TRIP_ID,
+  TRIP_LOCATION,
+  TRIP_NAME,
+  TRIP_SUBTITLE,
+} from "@/lib/trip-data";
 import type { Session } from "@/lib/types";
 import { cn } from "@/lib/utils";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -23,36 +31,35 @@ import { toast } from "sonner";
 import { z } from "zod";
 
 const CLOUDS = [
-  { id: 0, top:  "7%", dur: 58, del: -12, scale: 0.65, opacity: 0.8  },
-  { id: 1, top: "24%", dur: 78, del: -39, scale: 0.5,  opacity: 0.65 },
-  { id: 2, top: "53%", dur: 66, del: -20, scale: 0.55, opacity: 0.6  },
+  { id: 0, top: "7%", dur: 58, del: -12, scale: 0.65, opacity: 0.8 },
+  { id: 1, top: "24%", dur: 78, del: -39, scale: 0.5, opacity: 0.65 },
+  { id: 2, top: "53%", dur: 66, del: -20, scale: 0.55, opacity: 0.6 },
   { id: 3, top: "73%", dur: 88, del: -62, scale: 0.45, opacity: 0.55 },
-  { id: 4, top: "15%", dur: 70, del: -55, scale: 0.4,  opacity: 0.5  },
-  { id: 5, top: "40%", dur: 50, del:  -8, scale: 0.6,  opacity: 0.6  },
+  { id: 4, top: "15%", dur: 70, del: -55, scale: 0.4, opacity: 0.5 },
+  { id: 5, top: "40%", dur: 50, del: -8, scale: 0.6, opacity: 0.6 },
   { id: 6, top: "62%", dur: 62, del: -47, scale: 0.35, opacity: 0.45 },
-  { id: 7, top: "85%", dur: 75, del: -25, scale: 0.5,  opacity: 0.5  },
+  { id: 7, top: "85%", dur: 75, del: -25, scale: 0.5, opacity: 0.5 },
 ];
 
-
 const STARS = [
-  { id:  0, top:  "4%", left:  "7%", size: 2.5, dur: 2.5, del: 0.0 },
-  { id:  1, top: "11%", left: "22%", size: 1.5, dur: 3.2, del: 0.8 },
-  { id:  2, top: "18%", left: "54%", size: 3.0, dur: 2.8, del: 1.5 },
-  { id:  3, top:  "7%", left: "74%", size: 2.0, dur: 3.5, del: 0.3 },
-  { id:  4, top: "29%", left: "14%", size: 1.5, dur: 2.2, del: 2.1 },
-  { id:  5, top: "24%", left: "44%", size: 2.5, dur: 3.0, del: 1.2 },
-  { id:  6, top: "34%", left: "81%", size: 2.0, dur: 2.7, del: 0.6 },
-  { id:  7, top: "47%", left:  "4%", size: 1.5, dur: 3.3, del: 1.8 },
-  { id:  8, top: "54%", left: "36%", size: 3.0, dur: 2.1, del: 0.9 },
-  { id:  9, top: "50%", left: "64%", size: 2.0, dur: 2.9, del: 2.4 },
+  { id: 0, top: "4%", left: "7%", size: 2.5, dur: 2.5, del: 0.0 },
+  { id: 1, top: "11%", left: "22%", size: 1.5, dur: 3.2, del: 0.8 },
+  { id: 2, top: "18%", left: "54%", size: 3.0, dur: 2.8, del: 1.5 },
+  { id: 3, top: "7%", left: "74%", size: 2.0, dur: 3.5, del: 0.3 },
+  { id: 4, top: "29%", left: "14%", size: 1.5, dur: 2.2, del: 2.1 },
+  { id: 5, top: "24%", left: "44%", size: 2.5, dur: 3.0, del: 1.2 },
+  { id: 6, top: "34%", left: "81%", size: 2.0, dur: 2.7, del: 0.6 },
+  { id: 7, top: "47%", left: "4%", size: 1.5, dur: 3.3, del: 1.8 },
+  { id: 8, top: "54%", left: "36%", size: 3.0, dur: 2.1, del: 0.9 },
+  { id: 9, top: "50%", left: "64%", size: 2.0, dur: 2.9, del: 2.4 },
   { id: 10, top: "62%", left: "19%", size: 2.5, dur: 3.1, del: 0.4 },
   { id: 11, top: "67%", left: "51%", size: 1.5, dur: 2.6, del: 1.7 },
   { id: 12, top: "71%", left: "86%", size: 2.0, dur: 3.4, del: 0.2 },
-  { id: 13, top: "79%", left:  "9%", size: 1.5, dur: 2.3, del: 2.8 },
+  { id: 13, top: "79%", left: "9%", size: 1.5, dur: 2.3, del: 2.8 },
   { id: 14, top: "84%", left: "41%", size: 3.0, dur: 2.8, del: 1.1 },
   { id: 15, top: "77%", left: "69%", size: 2.5, dur: 3.2, del: 0.7 },
   { id: 16, top: "90%", left: "24%", size: 2.0, dur: 2.4, del: 1.9 },
-  { id: 17, top:  "2%", left: "91%", size: 1.5, dur: 3.6, del: 0.5 },
+  { id: 17, top: "2%", left: "91%", size: 1.5, dur: 3.6, del: 0.5 },
   { id: 18, top: "40%", left: "93%", size: 2.0, dur: 2.7, del: 2.2 },
   { id: 19, top: "59%", left: "47%", size: 1.5, dur: 3.0, del: 1.4 },
 ];
@@ -63,28 +70,34 @@ function Background({ isDark }: { isDark: boolean | null }) {
       <div className="to-background dark:to-background absolute inset-0 bg-linear-to-b from-sky-200/50 via-sky-100/15 via-90% dark:from-sky-950/50 dark:via-sky-900/15 dark:via-90%" />
       <div className="absolute -top-16 -right-16 h-56 w-56 rounded-full bg-sky-200/40 blur-3xl dark:bg-sky-700/20" />
       <div className="absolute bottom-0 -left-12 h-40 w-40 rounded-full bg-indigo-100/50 blur-2xl dark:bg-indigo-900/20" />
-      {isDark === false && CLOUDS.map((c) => (
-        <div
-          key={c.id}
-          className="pointer-events-none absolute"
-          style={{ top: c.top, left: "-140px", animation: `cloudDrift ${c.dur}s linear ${c.del}s infinite` }}
-        >
-          <CloudShape scale={c.scale} opacity={c.opacity} />
-        </div>
-      ))}
-      {isDark === true && STARS.map((s) => (
-        <div
-          key={s.id}
-          className="pointer-events-none absolute rounded-full bg-white/60 dark:bg-white"
-          style={{
-            top: s.top,
-            left: s.left,
-            width: s.size,
-            height: s.size,
-            animation: `twinkle ${s.dur}s ease-in-out ${s.del}s infinite`,
-          }}
-        />
-      ))}
+      {isDark === false &&
+        CLOUDS.map((c) => (
+          <div
+            key={c.id}
+            className="pointer-events-none absolute"
+            style={{
+              top: c.top,
+              left: "-140px",
+              animation: `cloudDrift ${c.dur}s linear ${c.del}s infinite`,
+            }}
+          >
+            <CloudShape scale={c.scale} opacity={c.opacity} />
+          </div>
+        ))}
+      {isDark === true &&
+        STARS.map((s) => (
+          <div
+            key={s.id}
+            className="pointer-events-none absolute rounded-full bg-white/60 dark:bg-white"
+            style={{
+              top: s.top,
+              left: s.left,
+              width: s.size,
+              height: s.size,
+              animation: `twinkle ${s.dur}s ease-in-out ${s.del}s infinite`,
+            }}
+          />
+        ))}
     </>
   );
 }
@@ -174,18 +187,18 @@ function LoginStep({ onSuccess }: { onSuccess: (session: Session) => void }) {
         />
       </Field>
 
-        <Field
-          label="패스코드"
-          icon={Lock}
-          error={passcodeError || errors.passcode?.message}
-        >
-          <InputGroupInput
-            {...register("passcode", { onChange: () => setPasscodeError("") })}
-            type="password"
-            placeholder="••••••••"
-            aria-invalid={!!(errors.passcode || passcodeError)}
-          />
-        </Field>
+      <Field
+        label="패스코드"
+        icon={Lock}
+        error={passcodeError || errors.passcode?.message}
+      >
+        <InputGroupInput
+          {...register("passcode", { onChange: () => setPasscodeError("") })}
+          type="password"
+          placeholder="••••••••"
+          aria-invalid={!!(errors.passcode || passcodeError)}
+        />
+      </Field>
 
       <Button type="submit" className="w-full" disabled={isSubmitting}>
         {isSubmitting ? "확인 중…" : "입장하기 →"}
@@ -197,7 +210,10 @@ function LoginStep({ onSuccess }: { onSuccess: (session: Session) => void }) {
 // ─── Profile step ─────────────────────────────────────────────────────────────
 
 const profileSchema = z.object({
-  message: z.string().min(1, "한마디를 입력해주세요").max(50, "50자 이하로 입력해주세요"),
+  message: z
+    .string()
+    .min(1, "한마디를 입력해주세요")
+    .max(50, "50자 이하로 입력해주세요"),
 });
 type ProfileForm = z.infer<typeof profileSchema>;
 
@@ -223,20 +239,26 @@ function ProfileStep({
     defaultValues: { message: "" },
   });
 
-  const handleFileChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-    setImageSrc(URL.createObjectURL(file));
-    setCropOpen(true);
-    e.target.value = "";
-  }, []);
+  const handleFileChange = useCallback(
+    (e: React.ChangeEvent<HTMLInputElement>) => {
+      const file = e.target.files?.[0];
+      if (!file) return;
+      setImageSrc(URL.createObjectURL(file));
+      setCropOpen(true);
+      e.target.value = "";
+    },
+    [],
+  );
 
-  const handleCropConfirm = useCallback((blob: Blob) => {
-    if (previewUrl) URL.revokeObjectURL(previewUrl);
-    setCroppedBlob(blob);
-    setPreviewUrl(URL.createObjectURL(blob));
-    setCropOpen(false);
-  }, [previewUrl]);
+  const handleCropConfirm = useCallback(
+    (blob: Blob) => {
+      if (previewUrl) URL.revokeObjectURL(previewUrl);
+      setCroppedBlob(blob);
+      setPreviewUrl(URL.createObjectURL(blob));
+      setCropOpen(false);
+    },
+    [previewUrl],
+  );
 
   const handleCropCancel = useCallback(() => {
     URL.revokeObjectURL(imageSrc);
@@ -245,7 +267,9 @@ function ProfileStep({
   }, [imageSrc]);
 
   const onSubmit = async (data: ProfileForm) => {
-    const patch: { photo_url?: string; message: string } = { message: data.message };
+    const patch: { photo_url?: string; message: string } = {
+      message: data.message,
+    };
     if (croppedBlob) {
       patch.photo_url = await uploadAvatar(session.id, croppedBlob);
     }
@@ -264,7 +288,9 @@ function ProfileStep({
     <>
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
         <p className="text-muted-foreground text-center text-sm">
-          {session.name}님, 반가워요!<br />프로필을 완성해주세요.
+          {session.name}님, 반가워요!
+          <br />
+          프로필을 완성해주세요.
         </p>
 
         {/* avatar upload */}
@@ -279,7 +305,11 @@ function ProfileStep({
           >
             {previewUrl ? (
               // eslint-disable-next-line @next/next/no-img-element
-              <img src={previewUrl} alt="" className="h-full w-full object-cover" />
+              <img
+                src={previewUrl}
+                alt=""
+                className="h-full w-full object-cover"
+              />
             ) : (
               <div className="text-muted-foreground flex h-full flex-col items-center justify-center gap-1">
                 <Camera className="h-5 w-5" />
@@ -296,7 +326,11 @@ function ProfileStep({
           />
         </div>
 
-        <Field label="한마디" icon={MessageSquare} error={errors.message?.message}>
+        <Field
+          label="한마디"
+          icon={MessageSquare}
+          error={errors.message?.message}
+        >
           <InputGroupInput
             {...register("message")}
             placeholder="기대돼요!"
@@ -329,8 +363,11 @@ export function PasscodeGate({ children }: { children: React.ReactNode }) {
 
   useEffect(() => {
     const stored = localStorage.getItem(SESSION_KEY);
-    // eslint-disable-next-line react-hooks/set-state-in-effect
-    if (!stored) { setStep("login"); return; }
+    if (!stored) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
+      setStep("login");
+      return;
+    }
     const s: Session = JSON.parse(stored);
     setSession(s);
     setStep(s.photo_url && s.message ? "done" : "profile");
@@ -345,25 +382,35 @@ export function PasscodeGate({ children }: { children: React.ReactNode }) {
     };
     const channel = supabase
       .channel("kick_watch")
-      .on("postgres_changes", {
-        event: "DELETE",
-        schema: "public",
-        table: "participants",
-        filter: `trip_id=eq.${TRIP_ID}`,
-      }, (payload) => {
-        if ((payload.old as { id?: string }).id === session.id) logout();
-      })
-      .on("postgres_changes", {
-        event: "UPDATE",
-        schema: "public",
-        table: "participants",
-        filter: `trip_id=eq.${TRIP_ID}`,
-      }, (payload) => {
-        const updated = payload.new as { id: string; token: string };
-        if (updated.id === session.id && !updated.token) logout();
-      })
+      .on(
+        "postgres_changes",
+        {
+          event: "DELETE",
+          schema: "public",
+          table: "participants",
+          filter: `trip_id=eq.${TRIP_ID}`,
+        },
+        (payload) => {
+          if ((payload.old as { id?: string }).id === session.id) logout();
+        },
+      )
+      .on(
+        "postgres_changes",
+        {
+          event: "UPDATE",
+          schema: "public",
+          table: "participants",
+          filter: `trip_id=eq.${TRIP_ID}`,
+        },
+        (payload) => {
+          const updated = payload.new as { id: string; token: string };
+          if (updated.id === session.id && !updated.token) logout();
+        },
+      )
       .subscribe();
-    return () => { supabase.removeChannel(channel); };
+    return () => {
+      supabase.removeChannel(channel);
+    };
   }, [session]);
 
   const [isDark, setIsDark] = useState<boolean | null>(() => {
@@ -371,19 +418,21 @@ export function PasscodeGate({ children }: { children: React.ReactNode }) {
     return document.documentElement.classList.contains("dark");
   });
   useEffect(() => {
-    const update = () => setIsDark(document.documentElement.classList.contains("dark"));
+    const update = () =>
+      setIsDark(document.documentElement.classList.contains("dark"));
     const observer = new MutationObserver(update);
     observer.observe(document.documentElement, { attributeFilter: ["class"] });
     return () => observer.disconnect();
   }, []);
 
-  if (step === "checking") return (
-    <div className="fixed inset-0 flex items-start">
-      <div className="h-0.5 w-full overflow-hidden bg-transparent">
-        <div className="h-full animate-[loading-bar_1.2s_ease-in-out_infinite] bg-sky-400" />
+  if (step === "checking")
+    return (
+      <div className="fixed inset-0 flex items-start">
+        <div className="h-0.5 w-full overflow-hidden bg-transparent">
+          <div className="h-full animate-[loading-bar_1.2s_ease-in-out_infinite] bg-sky-400" />
+        </div>
       </div>
-    </div>
-  );
+    );
   if (step === "done") return <>{children}</>;
 
   const handleLoginSuccess = (s: Session) => {
@@ -394,7 +443,7 @@ export function PasscodeGate({ children }: { children: React.ReactNode }) {
 
   return (
     <div className="relative flex min-h-screen flex-col items-center justify-center overflow-hidden px-4 py-12">
-<Background isDark={isDark} />
+      <Background isDark={isDark} />
 
       <div className="relative z-10 w-full max-w-sm">
         <div className="mb-8 text-center">
@@ -402,18 +451,14 @@ export function PasscodeGate({ children }: { children: React.ReactNode }) {
             <MapPin className="h-3 w-3" />
             {TRIP_LOCATION}
           </p>
-          <h1 className="text-3xl font-bold tracking-tight">
-            {TRIP_NAME}
-          </h1>
+          <h1 className="text-3xl font-bold tracking-tight">{TRIP_NAME}</h1>
           <p className="text-muted-foreground/70 mt-1 text-sm font-medium tracking-[4px] uppercase">
             {TRIP_SUBTITLE}
           </p>
         </div>
 
         <div className="bg-background/80 rounded-2xl border p-6 shadow-xl backdrop-blur-sm">
-          {step === "login" && (
-            <LoginStep onSuccess={handleLoginSuccess} />
-          )}
+          {step === "login" && <LoginStep onSuccess={handleLoginSuccess} />}
           {step === "profile" && session && (
             <ProfileStep session={session} onComplete={() => setStep("done")} />
           )}

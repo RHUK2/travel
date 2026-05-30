@@ -13,9 +13,8 @@ import {
 } from "@/components/ui/dialog";
 import { ThemeToggle } from "./theme-toggle";
 import { ParticipantsStrip } from "./participants-strip";
-import { ProfileChip } from "./profile-chip";
 import { CloudShape } from "./cloud-shape";
-import { AUTH_KEY, DEVICE_KEY, SESSION_KEY } from "@/lib/constants";
+import { SESSION_KEY } from "@/lib/constants";
 import {
   TRIP_DATES,
   TRIP_LOCATION,
@@ -29,8 +28,6 @@ export function Hero() {
 
   const handleLogout = () => {
     localStorage.removeItem(SESSION_KEY);
-    localStorage.removeItem(AUTH_KEY);
-    localStorage.removeItem(DEVICE_KEY);
     window.location.reload();
   };
 
@@ -47,34 +44,64 @@ export function Hero() {
         aria-hidden="true"
       >
         {/* clouds */}
-        <div className="absolute top-4 animate-[cloudDrift_28s_linear_-10s_infinite]" style={{ left: "-140px" }}>
+        <div
+          className="absolute top-4 animate-[cloudDrift_28s_linear_-10s_infinite]"
+          style={{ left: "-140px" }}
+        >
           <CloudShape scale={0.7} opacity={0.9} />
         </div>
-        <div className="absolute top-3 animate-[cloudDrift_36s_linear_-22s_infinite]" style={{ left: "-110px" }}>
+        <div
+          className="absolute top-3 animate-[cloudDrift_36s_linear_-22s_infinite]"
+          style={{ left: "-110px" }}
+        >
           <CloudShape scale={0.55} opacity={0.7} />
         </div>
-        <div className="absolute top-1/2 animate-[cloudDrift_40s_linear_-8s_infinite]" style={{ left: "-120px" }}>
+        <div
+          className="absolute top-1/2 animate-[cloudDrift_40s_linear_-8s_infinite]"
+          style={{ left: "-120px" }}
+        >
           <CloudShape scale={0.5} opacity={0.65} />
         </div>
-        <div className="absolute top-1/3 animate-[cloudDrift_32s_linear_-16s_infinite]" style={{ left: "-130px" }}>
+        <div
+          className="absolute top-1/3 animate-[cloudDrift_32s_linear_-16s_infinite]"
+          style={{ left: "-130px" }}
+        >
           <CloudShape scale={0.6} opacity={0.6} />
         </div>
-        <div className="absolute bottom-10 animate-[cloudDrift_44s_linear_-35s_infinite]" style={{ left: "-100px" }}>
+        <div
+          className="absolute bottom-10 animate-[cloudDrift_44s_linear_-35s_infinite]"
+          style={{ left: "-100px" }}
+        >
           <CloudShape scale={0.5} opacity={0.55} />
         </div>
-        <div className="absolute bottom-6 animate-[cloudDrift_33s_linear_-3s_infinite]" style={{ left: "-120px" }}>
+        <div
+          className="absolute bottom-6 animate-[cloudDrift_33s_linear_-3s_infinite]"
+          style={{ left: "-120px" }}
+        >
           <CloudShape scale={0.45} opacity={0.5} />
         </div>
-        <div className="absolute top-8 animate-[cloudDrift_38s_linear_-30s_infinite]" style={{ left: "-140px" }}>
+        <div
+          className="absolute top-8 animate-[cloudDrift_38s_linear_-30s_infinite]"
+          style={{ left: "-140px" }}
+        >
           <CloudShape scale={0.4} opacity={0.55} />
         </div>
-        <div className="absolute top-2/3 animate-[cloudDrift_30s_linear_-6s_infinite]" style={{ left: "-110px" }}>
+        <div
+          className="absolute top-2/3 animate-[cloudDrift_30s_linear_-6s_infinite]"
+          style={{ left: "-110px" }}
+        >
           <CloudShape scale={0.65} opacity={0.6} />
         </div>
-        <div className="absolute bottom-4 animate-[cloudDrift_42s_linear_-19s_infinite]" style={{ left: "-130px" }}>
+        <div
+          className="absolute bottom-4 animate-[cloudDrift_42s_linear_-19s_infinite]"
+          style={{ left: "-130px" }}
+        >
           <CloudShape scale={0.35} opacity={0.45} />
         </div>
-        <div className="absolute top-1/4 animate-[cloudDrift_50s_linear_-43s_infinite]" style={{ left: "-120px" }}>
+        <div
+          className="absolute top-1/4 animate-[cloudDrift_50s_linear_-43s_infinite]"
+          style={{ left: "-120px" }}
+        >
           <CloudShape scale={0.5} opacity={0.5} />
         </div>
       </div>
@@ -102,9 +129,7 @@ export function Hero() {
           {TRIP_LOCATION}
         </p>
 
-        <h1 className="text-4xl font-bold tracking-tight">
-          {TRIP_NAME}
-        </h1>
+        <h1 className="text-4xl font-bold tracking-tight">{TRIP_NAME}</h1>
         <p className="text-muted-foreground/70 mt-1.5 text-sm font-medium tracking-[5px] uppercase">
           {TRIP_SUBTITLE}
         </p>
@@ -125,7 +150,6 @@ export function Hero() {
 
       {/* z-20 — profile chip + logout + theme toggle */}
       <div className="absolute top-3 right-3 z-20 flex items-center gap-2">
-        <ProfileChip />
         <Button
           variant="outline"
           size="icon"

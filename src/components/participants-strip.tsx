@@ -15,10 +15,12 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { supabase } from "@/lib/supabase";
-import { fetchParticipants, type Participant } from "@/lib/participants-queries";
+import {
+  fetchParticipants,
+  type Participant,
+} from "@/lib/participants-queries";
+import { SESSION_KEY } from "@/lib/constants";
 import { TRIP_ID } from "@/lib/trip-data";
-
-const SESSION_KEY = "travel_session";
 
 function ParticipantAvatar({
   p,
@@ -32,7 +34,9 @@ function ParticipantAvatar({
   return (
     <div className="group flex flex-col items-center gap-1">
       <div className="relative">
-        <Avatar className={`h-10 w-10 border-2 shadow-sm ${isMe ? "border-sky-400 ring-2 ring-sky-400/40" : "border-background"}`}>
+        <Avatar
+          className={`h-10 w-10 border-2 shadow-sm ${isMe ? "border-sky-400 ring-2 ring-sky-400/40" : "border-background"}`}
+        >
           <AvatarImage src={p.photo_url || undefined} alt={p.name} />
           <AvatarFallback className="bg-sky-100 text-sm font-bold text-sky-700 dark:bg-sky-950 dark:text-sky-300">
             {p.name.slice(0, 1)}
@@ -47,7 +51,12 @@ function ParticipantAvatar({
           <X className="h-4 w-4 text-white" />
         </Button>
       </div>
-      <span className="text-[11px] font-medium">{p.name}{isMe && <span className="ml-1 text-[9px] font-semibold text-sky-500">나</span>}</span>
+      <span className="text-[11px] font-medium">
+        {p.name}
+        {isMe && (
+          <span className="ml-1 text-[9px] font-semibold text-sky-500">나</span>
+        )}
+      </span>
       {p.message && (
         <span className="text-muted-foreground max-w-[64px] truncate text-[10px]">
           {p.message}
@@ -118,7 +127,12 @@ function ResetDialog({
   };
 
   return (
-    <Dialog open={!!target} onOpenChange={(open) => { if (!open) onClose(); }}>
+    <Dialog
+      open={!!target}
+      onOpenChange={(open) => {
+        if (!open) onClose();
+      }}
+    >
       <DialogContent className="max-w-xs">
         <DialogHeader>
           <DialogTitle>프로필 초기화</DialogTitle>
@@ -135,8 +149,13 @@ function ResetDialog({
               type="password"
               placeholder="어드민 비밀번호"
               value={password}
-              onChange={(e) => { setPassword(e.target.value); setError(""); }}
-              onKeyDown={(e) => { if (e.key === "Enter") handleConfirm(); }}
+              onChange={(e) => {
+                setPassword(e.target.value);
+                setError("");
+              }}
+              onKeyDown={(e) => {
+                if (e.key === "Enter") handleConfirm();
+              }}
             />
             {error && <p className="text-destructive text-xs">{error}</p>}
           </>
@@ -160,7 +179,8 @@ function ResetDialog({
 
 export function ParticipantsStrip() {
   const queryClient = useQueryClient();
-  const stored = typeof window !== "undefined" ? localStorage.getItem(SESSION_KEY) : null;
+  const stored =
+    typeof window !== "undefined" ? localStorage.getItem(SESSION_KEY) : null;
   const myId = stored ? JSON.parse(stored).id : "";
 
   const [resetTarget, setResetTarget] = useState<Participant | null>(null);
@@ -182,7 +202,10 @@ export function ParticipantsStrip() {
           filter: `trip_id=eq.${TRIP_ID}`,
         },
         (payload) => {
-          if (payload.eventType === "INSERT" || payload.eventType === "UPDATE") {
+          if (
+            payload.eventType === "INSERT" ||
+            payload.eventType === "UPDATE"
+          ) {
             const row = payload.new as Participant;
             queryClient.setQueryData(
               ["participants"],
@@ -198,7 +221,9 @@ export function ParticipantsStrip() {
       )
       .subscribe();
 
-    return () => { supabase.removeChannel(channel); };
+    return () => {
+      supabase.removeChannel(channel);
+    };
   }, [queryClient]);
 
   if (!isLoading && participants.length === 0) return null;
@@ -213,9 +238,9 @@ export function ParticipantsStrip() {
           {isLoading
             ? Array.from({ length: 3 }).map((_, i) => (
                 <div key={i} className="flex flex-col items-center gap-1">
-                  <div className="h-10 w-10 animate-pulse rounded-full bg-muted" />
-                  <div className="h-2.5 w-8 animate-pulse rounded bg-muted" />
-                  <div className="h-2 w-10 animate-pulse rounded bg-muted" />
+                  <div className="bg-muted h-10 w-10 animate-pulse rounded-full" />
+                  <div className="bg-muted h-2.5 w-8 animate-pulse rounded" />
+                  <div className="bg-muted h-2 w-10 animate-pulse rounded" />
                 </div>
               ))
             : participants.map((p) => (
