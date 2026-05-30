@@ -1,7 +1,6 @@
 "use client";
 
 import { Badge } from "@/components/ui/badge";
-import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import {
@@ -25,6 +24,7 @@ import {
   PenLine,
   Trash2,
 } from "lucide-react";
+import Link from "next/link";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
@@ -82,10 +82,11 @@ export function TimelineItem({
   memoCollapseKey,
   memoExpandKey,
 }: TimelineItemProps) {
-  const { states, personalStates, upsert, upsertPersonal } = useTripStore();
-  const state = states[item.id];
-  const isDone = state?.is_done ?? false;
-  const savedMemo = personalStates[item.id]?.memo ?? "";
+  const isDone = useTripStore((s) => s.states[item.id]?.is_done ?? false);
+  const isPending = useTripStore((s) => !!s.pendingItems[item.id]);
+  const savedMemo = useTripStore((s) => s.personalStates[item.id]?.memo ?? "");
+  const upsert = useTripStore((s) => s.upsert);
+  const upsertPersonal = useTripStore((s) => s.upsertPersonal);
 
   const [tipOpen, setTipOpen] = useState(true);
   const [memoOpen, setMemoOpen] = useState(false);
@@ -97,14 +98,14 @@ export function TimelineItem({
     return () => { if (debounceTimer.current) clearTimeout(debounceTimer.current); };
   }, []);
 
-  const { register, watch, setValue } = useForm<MemoForm>({
+  const { register, watch, setValue, getValues } = useForm<MemoForm>({
     resolver: zodResolver(memoSchema),
     defaultValues: { memo: savedMemo },
   });
 
   useEffect(() => {
-    setValue("memo", savedMemo);
-  }, [savedMemo, setValue]);
+    if (savedMemo !== getValues("memo")) setValue("memo", savedMemo);
+  }, [savedMemo, setValue, getValues]);
 
   // eslint-disable-next-line react-hooks/incompatible-library
   const memoValue = watch("memo");
@@ -136,8 +137,9 @@ export function TimelineItem({
   );
 
   const handleDoneToggle = useCallback(() => {
+    if (isPending) return;
     upsert(item.id, { is_done: !isDone });
-  }, [item.id, isDone, upsert]);
+  }, [item.id, isDone, upsert, isPending]);
 
   const handleDeleteMemo = useCallback(async () => {
     await upsertPersonal(item.id, { memo: "" });
