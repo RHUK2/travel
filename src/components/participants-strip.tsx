@@ -239,8 +239,8 @@ export function ParticipantsStrip() {
             ? Array.from({ length: 3 }).map((_, i) => (
                 <div key={i} className="flex flex-col items-center gap-1">
                   <div className="bg-muted h-10 w-10 animate-pulse rounded-full" />
-                  <div className="bg-muted h-2.5 w-8 animate-pulse rounded" />
-                  <div className="bg-muted h-2 w-10 animate-pulse rounded" />
+                  <div className="bg-muted h-4 w-8 animate-pulse rounded" />
+                  <div className="bg-muted h-3.5 w-10 animate-pulse rounded" />
                 </div>
               ))
             : participants.map((p) => (
