@@ -1,9 +1,10 @@
--- 개인 상태: 메모 및 경비 입력값 (유저별 독립 데이터)
+-- 개인 상태: 메모, 경비 입력값, 체크리스트 완료 여부 (유저별 독립 데이터)
 
 create table personal_states (
   trip_id    text        not null default 'yonago-2026',
   item_id    text        not null,
   user_id    text        not null,
+  is_done    boolean     not null default false,
   memo       text        not null default '',
   value      text        not null default '',
   updated_at timestamptz not null default now(),

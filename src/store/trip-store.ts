@@ -24,7 +24,7 @@ interface TripStore {
   upsert: (itemId: string, patch: Partial<Pick<ItemState, "is_done">>) => void;
   upsertPersonal: (
     itemId: string,
-    patch: Partial<Pick<PersonalState, "memo" | "value">>,
+    patch: Partial<Pick<PersonalState, "is_done" | "memo" | "value">>,
   ) => Promise<void>;
 }
 

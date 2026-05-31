@@ -9,6 +9,7 @@ export async function POST(req: NextRequest) {
       trip_id: TRIP_ID,
       item_id: itemId,
       user_id: userId,
+      is_done: current?.is_done ?? false,
       memo: current?.memo ?? "",
       value: current?.value ?? "",
       ...patch,

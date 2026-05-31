@@ -6,29 +6,31 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { useTripStore } from "@/store/trip-store";
-import { CHECKLIST_GROUPS } from "@/lib/trip-data";
-import { TRIP_ID } from "@/lib/trip-data";
+import { CHECKLIST_GROUPS, TRIP_ID } from "@/lib/trip-data";
 import { supabase } from "@/lib/supabase";
 
 export function ChecklistTab() {
-  const { states, upsert, setItemState } = useTripStore();
+  const { personalStates, currentUser, upsertPersonal, setPersonalState } =
+    useTripStore();
 
   const handleToggle = useCallback(
     (itemId: string, checked: boolean) => {
-      upsert(itemId, { is_done: checked });
+      upsertPersonal(itemId, { is_done: checked });
     },
-    [upsert],
+    [upsertPersonal],
   );
 
   const handleReset = useCallback(async () => {
+    if (!currentUser) return;
     const ids = CHECKLIST_GROUPS.flatMap((g) => g.items.map((i) => i.id));
-    for (const id of ids) setItemState(id, { is_done: false });
+    for (const id of ids) setPersonalState(id, { is_done: false });
     await supabase
-      .from("item_states")
+      .from("personal_states")
       .update({ is_done: false } as Record<string, unknown>)
       .eq("trip_id", TRIP_ID)
+      .eq("user_id", currentUser.id)
       .in("item_id", ids);
-  }, [setItemState]);
+  }, [currentUser, setPersonalState]);
 
   return (
     <div className="space-y-6">
@@ -54,7 +56,7 @@ export function ChecklistTab() {
           </p>
           <div className="overflow-hidden rounded-xl border">
             {group.items.map((item, idx) => {
-              const isDone = states[item.id]?.is_done ?? false;
+              const isDone = personalStates[item.id]?.is_done ?? false;
               return (
                 <div key={item.id}>
                   <label className="hover:bg-muted/50 flex cursor-pointer items-center gap-3 px-4 py-3 transition-colors">
