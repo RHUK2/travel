@@ -385,13 +385,18 @@ export function PasscodeGate({ children }: { children: React.ReactNode }) {
     // Supabase Realtime이 오프라인 중 이벤트를 replay하지 못할 경우를 대비
     const handleVisibilityChange = async () => {
       if (document.visibilityState !== "visible") return;
-      const res = await fetch("/api/validate-session", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ userId: session.id, token: session.token }),
-      });
-      const { valid } = await res.json();
-      if (!valid) logout();
+      try {
+        const res = await fetch("/api/validate-session", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ userId: session.id, token: session.token }),
+        });
+        if (!res.ok) return;
+        const { valid } = await res.json();
+        if (valid === false) logout();
+      } catch {
+        // 네트워크 오류(오프라인, cold start 등)는 로그아웃하지 않음
+      }
     };
     document.addEventListener("visibilitychange", handleVisibilityChange);
 
@@ -418,8 +423,8 @@ export function PasscodeGate({ children }: { children: React.ReactNode }) {
           filter: `trip_id=eq.${TRIP_ID}`,
         },
         (payload) => {
-          const updated = payload.new as { id: string; token: string };
-          if (updated.id === session.id && !updated.token) logout();
+          const updated = payload.new as { id: string; token: string | null };
+          if (updated.id === session.id && updated.token === null) logout();
         },
       )
       .subscribe();
@@ -458,7 +463,7 @@ export function PasscodeGate({ children }: { children: React.ReactNode }) {
   };
 
   return (
-    <div className="relative flex min-h-dvh flex-col items-center justify-center overflow-hidden px-4 py-12">
+    <div className="fixed inset-0 flex flex-col items-center justify-center overflow-x-hidden overflow-y-auto px-4 py-12">
       <Background isDark={isDark} />
 
       <div className="relative z-10 w-full max-w-sm">
