@@ -571,4 +571,9 @@ export const EXPENSE_ROWS: ExpenseRow[] = [
     jpyRange: [5000, 10000],
     subRows: [{ label: "코난 굿즈 · 돗토리 특산품 등" }],
   },
+  {
+    id: "budget_6",
+    label: "🗂 기타 비용",
+    estimate: "자유 입력",
+  },
 ];
