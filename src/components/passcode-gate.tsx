@@ -463,7 +463,7 @@ export function PasscodeGate({ children }: { children: React.ReactNode }) {
   };
 
   return (
-    <div className="fixed inset-0 flex flex-col items-center justify-center overflow-x-hidden overflow-y-auto px-4 py-12">
+    <div className="relative flex h-dvh flex-col items-center justify-center overflow-hidden px-4 py-12">
       <Background isDark={isDark} />
 
       <div className="relative z-10 w-full max-w-sm">
