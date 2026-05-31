@@ -8,7 +8,7 @@ export default function TripPage() {
   return (
     <PasscodeGate>
       <RealtimeProvider>
-        <div className="mx-auto max-w-2xl">
+        <div className="mx-auto min-h-dvh max-w-2xl">
           <Hero />
           <main className="px-4 py-8 pb-20">
             <TripTabs />

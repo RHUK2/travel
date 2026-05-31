@@ -51,7 +51,7 @@ export default function RootLayout({
           href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
         />
       </head>
-      <body className="bg-background min-h-dvh antialiased">
+      <body className="bg-background antialiased">
         <ThemeProvider
           attribute="class"
           defaultTheme="system"
