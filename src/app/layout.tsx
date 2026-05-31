@@ -1,7 +1,7 @@
 import { AddToHomeScreenBanner } from "@/components/add-to-homescreen-banner";
 import { QueryProvider } from "@/components/query-provider";
 import { TRIP_DESCRIPTION, TRIP_NAME } from "@/lib/trip-data";
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { ThemeProvider } from "next-themes";
 import localFont from "next/font/local";
 import { Toaster } from "sonner";
@@ -27,6 +27,12 @@ export const metadata: Metadata = {
   manifest: "/manifest.webmanifest",
 };
 
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
+  viewportFit: "cover",
+};
+
 export default function RootLayout({
   children,
 }: {
@@ -45,7 +51,7 @@ export default function RootLayout({
           href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
         />
       </head>
-      <body className="bg-background min-h-screen antialiased">
+      <body className="bg-background min-h-dvh antialiased">
         <ThemeProvider
           attribute="class"
           defaultTheme="system"

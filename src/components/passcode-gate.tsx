@@ -380,6 +380,21 @@ export function PasscodeGate({ children }: { children: React.ReactNode }) {
       setSession(null);
       setStep("login");
     };
+
+    // 포그라운드 복귀 시 서버에서 토큰 유효성 검증
+    // Supabase Realtime이 오프라인 중 이벤트를 replay하지 못할 경우를 대비
+    const handleVisibilityChange = async () => {
+      if (document.visibilityState !== "visible") return;
+      const res = await fetch("/api/validate-session", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ userId: session.id, token: session.token }),
+      });
+      const { valid } = await res.json();
+      if (!valid) logout();
+    };
+    document.addEventListener("visibilitychange", handleVisibilityChange);
+
     const channel = supabase
       .channel("kick_watch")
       .on(
@@ -409,6 +424,7 @@ export function PasscodeGate({ children }: { children: React.ReactNode }) {
       )
       .subscribe();
     return () => {
+      document.removeEventListener("visibilitychange", handleVisibilityChange);
       supabase.removeChannel(channel);
     };
   }, [session]);
@@ -442,7 +458,7 @@ export function PasscodeGate({ children }: { children: React.ReactNode }) {
   };
 
   return (
-    <div className="relative flex min-h-screen flex-col items-center justify-center overflow-hidden px-4 py-12">
+    <div className="relative flex min-h-dvh flex-col items-center justify-center overflow-hidden px-4 py-12">
       <Background isDark={isDark} />
 
       <div className="relative z-10 w-full max-w-sm">
