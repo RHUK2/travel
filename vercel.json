@@ -1,0 +1,12 @@
+{
+  "crons": [
+    {
+      "path": "/api/weather/update",
+      "schedule": "0 0 * * *"
+    },
+    {
+      "path": "/api/rate/update",
+      "schedule": "0 0 * * *"
+    }
+  ]
+}

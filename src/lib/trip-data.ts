@@ -11,8 +11,7 @@ export const TRIP_ROUTE = "인천 ↔ 요나고";
 
 export const DAY_LABELS = ["🏯 요나고", "🏖️ 돗토리·구라요시", "🎨 아다치·귀국"];
 
-export const EXPENSE_NOTE = `· 환율 기준: 9.44원/엔 (2026년 5월)
-· 숙박 등급 및 식비 수준에 따라 크게 달라질 수 있음
+export const EXPENSE_NOTE = `· 숙박 등급 및 식비 수준에 따라 크게 달라질 수 있음
 · 쇼핑 예산은 개인 취향에 따라 조정`;
 
 export const WEATHER: WeatherDay[] = [
@@ -20,22 +19,34 @@ export const WEATHER: WeatherDay[] = [
     label: "6/1 · Day 1",
     icon: "⛅",
     temp: "21° ~ 26°C",
+    feelsLike: "20° ~ 25°C",
     rain: "🌧 강수 30%",
-    note: "도착 후 저녁엔 맑음",
+    uv: 8,
+    wind: 12,
+    sunrise: "05:05",
+    sunset: "19:20",
   },
   {
     label: "6/2 · Day 2",
     icon: "🌤",
     temp: "20° ~ 27°C",
+    feelsLike: "19° ~ 26°C",
     rain: "🌧 강수 25%",
-    note: "사구는 오전이 쾌적",
+    uv: 9,
+    wind: 10,
+    sunrise: "05:05",
+    sunset: "19:21",
   },
   {
     label: "6/3 · Day 3",
     icon: "☀️",
     temp: "22° ~ 28°C",
+    feelsLike: "21° ~ 27°C",
     rain: "🌧 강수 15%",
-    note: "정원 감상 최적",
+    uv: 10,
+    wind: 8,
+    sunrise: "05:04",
+    sunset: "19:21",
   },
 ];
 
@@ -518,13 +529,15 @@ export const EXPENSE_ROWS: ExpenseRow[] = [
   {
     id: "budget_1",
     label: "🏨 숙박 (2박)",
-    estimate: "10,000~18,000엔 (약 9.4~17만원)",
+    estimate: "10,000~18,000엔",
+    jpyRange: [10000, 18000],
     subRows: [{ label: "요나고 시내 호텔 1박 5,000~9,000엔 기준" }],
   },
   {
     id: "budget_2",
     label: "🚃 교통비 (JR 패스)",
-    estimate: "4,600~5,600엔 (약 4.3~5.3만원)",
+    estimate: "4,600~5,600엔",
+    jpyRange: [4600, 5600],
     subRows: [
       {
         label:
@@ -535,13 +548,15 @@ export const EXPENSE_ROWS: ExpenseRow[] = [
   {
     id: "budget_3",
     label: "🍜 식비 (3일)",
-    estimate: "11,000~16,000엔 (약 10.4~15.1만원)",
+    estimate: "11,000~16,000엔",
+    jpyRange: [11000, 16000],
     subRows: [{ label: "하루 평균 3,700~5,300엔 · 3끼 + 간식" }],
   },
   {
     id: "budget_4",
     label: "♨️ 관광 · 체험",
-    estimate: "4,000~5,500엔 (약 3.8~5.2만원)",
+    estimate: "4,000~5,500엔",
+    jpyRange: [4000, 5500],
     subRows: [
       {
         label:
@@ -552,7 +567,8 @@ export const EXPENSE_ROWS: ExpenseRow[] = [
   {
     id: "budget_5",
     label: "🛍 쇼핑 · 기념품",
-    estimate: "5,000~10,000엔 (약 4.7~9.4만원)",
+    estimate: "5,000~10,000엔",
+    jpyRange: [5000, 10000],
     subRows: [{ label: "코난 굿즈 · 돗토리 특산품 등" }],
   },
 ];

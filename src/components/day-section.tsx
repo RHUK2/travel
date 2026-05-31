@@ -69,7 +69,7 @@ export function DaySection({ day, isActive }: DaySectionProps) {
 
   return (
     <div className="flex flex-col gap-6">
-      <WeatherStrip />
+      <WeatherStrip dayIndex={day.day - 1} />
       <MapSection spots={day.mapSpots} color={day.color} />
 
       <div>

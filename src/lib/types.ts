@@ -31,8 +31,12 @@ export interface WeatherDay {
   label: string;
   icon: string;
   temp: string;
+  feelsLike: string;
   rain: string;
-  note: string;
+  uv: number;
+  wind: number;
+  sunrise: string;
+  sunset: string;
 }
 
 export interface ChecklistItem {
@@ -50,6 +54,7 @@ export interface ExpenseRow {
   id: string;
   label: string;
   estimate: string;
+  jpyRange?: [number, number];
   subRows?: { label: string }[];
   isTotal?: boolean;
 }
@@ -67,6 +72,7 @@ export interface PersonalState {
   trip_id: string;
   item_id: string;
   user_id: string;
+  is_done: boolean;
   memo: string;
   value: string;
   updated_at: string;
