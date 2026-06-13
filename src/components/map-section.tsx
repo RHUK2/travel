@@ -46,7 +46,7 @@ export function MapSection({ spots, color }: MapSectionProps) {
 
   return (
     <div className="overflow-hidden rounded-xl border">
-      <div className="relative h-[300px]">
+      <div className="relative isolate h-[300px]">
         <Map
           ref={mapRef}
           bounds={initialBounds}
