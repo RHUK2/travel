@@ -1,12 +1,10 @@
 import { NextRequest, NextResponse } from "next/server";
 import { supabase } from "@/lib/supabase";
-import { TRIP_ID } from "@/lib/trip-data";
 
 export async function POST(req: NextRequest) {
   const { itemId, userId, patch, current } = await req.json();
   const { error } = await supabase.from("personal_states").upsert(
     {
-      trip_id: TRIP_ID,
       item_id: itemId,
       user_id: userId,
       is_done: current?.is_done ?? false,
@@ -14,7 +12,7 @@ export async function POST(req: NextRequest) {
       value: current?.value ?? "",
       ...patch,
     },
-    { onConflict: "trip_id,item_id,user_id" },
+    { onConflict: "item_id,user_id" },
   );
   if (error)
     return NextResponse.json({ error: error.message }, { status: 500 });

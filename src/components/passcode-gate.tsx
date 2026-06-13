@@ -15,12 +15,7 @@ import {
   uploadAvatar,
 } from "@/lib/participants-queries";
 import { supabase } from "@/lib/supabase";
-import {
-  TRIP_ID,
-  TRIP_LOCATION,
-  TRIP_NAME,
-  TRIP_SUBTITLE,
-} from "@/lib/trip-data";
+import { TRIP_LOCATION, TRIP_NAME, TRIP_SUBTITLE } from "@/lib/trip-data";
 import type { Session } from "@/lib/types";
 import { cn } from "@/lib/utils";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -408,7 +403,6 @@ export function PasscodeGate({ children }: { children: React.ReactNode }) {
           event: "DELETE",
           schema: "public",
           table: "participants",
-          filter: `trip_id=eq.${TRIP_ID}`,
         },
         (payload) => {
           if ((payload.old as { id?: string }).id === session.id) logout();
@@ -420,7 +414,6 @@ export function PasscodeGate({ children }: { children: React.ReactNode }) {
           event: "UPDATE",
           schema: "public",
           table: "participants",
-          filter: `trip_id=eq.${TRIP_ID}`,
         },
         (payload) => {
           const updated = payload.new as { id: string; token: string | null };

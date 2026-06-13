@@ -1,11 +1,19 @@
-export type Category = "move" | "sight" | "sight2" | "food" | "hot" | "sleep";
+export type Category =
+  | "move"
+  | "sight"
+  | "sight2"
+  | "food"
+  | "hot"
+  | "sleep"
+  | "shop"
+  | "etc";
 
 export interface TripItem {
   id: string;
-  time: string;
   category: Category;
   name: string;
   desc: string;
+  badge?: string;
   tip?: string;
   mapLink?: string;
 }
@@ -19,24 +27,12 @@ export interface MapSpot {
 }
 
 export interface DayData {
-  day: 1 | 2 | 3;
+  day: number;
   title: string;
   subtitle: string;
   color: string;
   items: TripItem[];
   mapSpots: MapSpot[];
-}
-
-export interface WeatherDay {
-  label: string;
-  icon: string;
-  temp: string;
-  feelsLike: string;
-  rain: string;
-  uv: number;
-  wind: number;
-  sunrise: string;
-  sunset: string;
 }
 
 export interface ChecklistItem {
@@ -46,6 +42,7 @@ export interface ChecklistItem {
 }
 
 export interface ChecklistGroup {
+  section: "국내" | "해외";
   label: string;
   items: ChecklistItem[];
 }
@@ -60,7 +57,6 @@ export interface ExpenseRow {
 }
 
 export interface ItemState {
-  trip_id: string;
   item_id: string;
   is_done: boolean;
   memo: string;
@@ -69,7 +65,6 @@ export interface ItemState {
 }
 
 export interface PersonalState {
-  trip_id: string;
   item_id: string;
   user_id: string;
   is_done: boolean;
@@ -89,6 +84,11 @@ export interface AirportStep {
 export interface AirportBlock {
   title: string;
   steps: AirportStep[];
+}
+
+export interface TravelTip {
+  title: string;
+  body: string;
 }
 
 export interface Session {

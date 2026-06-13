@@ -5,7 +5,6 @@ import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/lib/supabase";
 import { fetchItemStates } from "@/lib/queries";
 import { fetchPersonalStates } from "@/lib/personal-queries";
-import { TRIP_ID } from "@/lib/trip-data";
 import { useTripStore } from "@/store/trip-store";
 import type { ItemState, PersonalState } from "@/lib/types";
 import { SESSION_KEY } from "@/lib/constants";
@@ -62,7 +61,6 @@ export function RealtimeProvider({ children }: { children: React.ReactNode }) {
           event: "*",
           schema: "public",
           table: "item_states",
-          filter: `trip_id=eq.${TRIP_ID}`,
         },
         (payload) => {
           if (

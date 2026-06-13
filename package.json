@@ -5,14 +5,17 @@
   "scripts": {
     "dev": "rm -rf .next && next dev",
     "doctor": "npx -y react-doctor@latest .",
-    "audit": "pnpm audit --audit-level=high",
     "type": "tsc --noEmit",
     "lint": "eslint . --max-warnings 10",
-    "prebuild": "pnpm run audit && pnpm run type && pnpm run lint",
+    "prebuild": "pnpm run type && pnpm run lint",
     "build": "next build",
     "start": "next start",
-    "tsc": "tsc --noEmit",
-    "clean": "rm -rf .next node_modules"
+    "clean": "rm -rf .next node_modules",
+    "format": "prettier --write \"**/*.{ts,tsx,md,json}\"",
+    "audit": "pnpm audit --audit-level=high",
+    "deps:check": "pnpm -r outdated",
+    "deps:update": "pnpm -r update && pnpm build",
+    "deps:update:major": "pnpm -r up -iL"
   },
   "dependencies": {
     "@hookform/resolvers": "^5.4.0",
@@ -21,8 +24,8 @@
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "immer": "^11.1.8",
-    "leaflet": "^1.9.4",
-    "lucide-react": "^1.16.0",
+    "lucide-react": "^1.17.0",
+    "maplibre-gl": "^5.24.0",
     "next": "16.2.6",
     "next-themes": "^0.4.6",
     "radix-ui": "^1.4.3",
@@ -36,16 +39,9 @@
     "zod": "^4.4.3",
     "zustand": "^5.0.13"
   },
-  "pnpm": {
-    "onlyBuiltDependencies": [
-      "sharp",
-      "unrs-resolver",
-      "msw"
-    ]
-  },
   "devDependencies": {
     "@tailwindcss/postcss": "^4",
-    "@types/leaflet": "^1.9.21",
+    "@types/geojson": "^7946.0.16",
     "@types/node": "^20",
     "@types/react": "^19",
     "@types/react-dom": "^19",

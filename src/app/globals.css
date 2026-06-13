@@ -117,7 +117,6 @@
   --sidebar-ring: oklch(0.556 0 0);
 }
 
-
 @keyframes loading-bar {
   0%   { transform: translateX(-100%); }
   50%  { transform: translateX(0%); }
@@ -175,5 +174,11 @@
   }
   html {
     @apply font-sans;
+  }
+  .maplibregl-popup-content {
+    @apply bg-transparent! shadow-none! p-0! rounded-none!;
+  }
+  .maplibregl-popup-tip {
+    @apply hidden!;
   }
 }

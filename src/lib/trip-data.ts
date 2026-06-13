@@ -1,454 +1,165 @@
-import type { DayData, WeatherDay, ChecklistGroup, ExpenseRow } from "./types";
+import type {
+  AirportBlock,
+  ChecklistGroup,
+  DayData,
+  ExpenseRow,
+  TravelTip,
+} from "./types";
 
-export const TRIP_ID = "yonago-2026";
-export const TRIP_NAME = "요나고 2박 3일 여행";
-export const TRIP_SHORT_NAME = "요나고 여행";
-export const TRIP_SUBTITLE = "Yonago · Jun 2026";
-export const TRIP_LOCATION = "돗토리현 · 일본";
-export const TRIP_DESCRIPTION = "돗토리현 · 요나고 · 2026.6.1–6.3";
-export const TRIP_DATES = "6.1 – 6.3";
-export const TRIP_ROUTE = "인천 ↔ 요나고";
-
-export const DAY_LABELS = ["🏯 요나고", "🏖️ 돗토리·구라요시", "🎨 아다치·귀국"];
+export const TRIP_NAME = "여행 이름";
+export const TRIP_SHORT_NAME = "여행";
+export const TRIP_SUBTITLE = "Destination · Month Year";
+export const TRIP_LOCATION = "목적지 · 국가";
+export const TRIP_DESCRIPTION = "목적지 · YYYY.MM.DD–MM.DD";
+export const TRIP_DATES = "MM.DD – MM.DD";
+export const TRIP_ROUTE = "출발지 ↔ 목적지";
+export const TRIP_FOOTER = "목적지 · N박 N일 여행";
 
 export const EXPENSE_NOTE = `· 숙박 등급 및 식비 수준에 따라 크게 달라질 수 있음
 · 쇼핑 예산은 개인 취향에 따라 조정`;
 
-export const WEATHER: WeatherDay[] = [
-  {
-    label: "6/1 · Day 1",
-    icon: "⛅",
-    temp: "21° ~ 26°C",
-    feelsLike: "20° ~ 25°C",
-    rain: "🌧 강수 30%",
-    uv: 8,
-    wind: 12,
-    sunrise: "05:05",
-    sunset: "19:20",
-  },
-  {
-    label: "6/2 · Day 2",
-    icon: "🌤",
-    temp: "20° ~ 27°C",
-    feelsLike: "19° ~ 26°C",
-    rain: "🌧 강수 25%",
-    uv: 9,
-    wind: 10,
-    sunrise: "05:05",
-    sunset: "19:21",
-  },
-  {
-    label: "6/3 · Day 3",
-    icon: "☀️",
-    temp: "22° ~ 28°C",
-    feelsLike: "21° ~ 27°C",
-    rain: "🌧 강수 15%",
-    uv: 10,
-    wind: 8,
-    sunrise: "05:04",
-    sunset: "19:21",
-  },
-];
-
 export const DAYS: DayData[] = [
   {
     day: 1,
-    title: "도착 & 요나고 시내",
-    subtitle: "성터 노을 · 미나토 야마 공원 · 야간 쇼핑",
+    title: "도착 & 시내 탐방",
+    subtitle: "공항 도착 · 체크인 · 첫날 저녁",
     color: "#ef4444",
     items: [
       {
-        id: "day1_card_0",
-        time: "14:50",
+        id: "item_0",
         category: "move",
-        name: "요나고 공항 도착",
-        desc: "인천 출발 13:25 → 요나고 14:50",
-        tip: "입국 수속 후 요나고공항역에서 JR 사카이선 탑승 · 요나고역까지 약 15분 · 패스 이용",
-        mapLink:
-          "https://www.google.com/maps/dir/?api=1&origin=Yonago+Kitaro+Airport+Japan&destination=Yonago+Station+Japan&travelmode=transit",
+        name: "목적지 공항 도착",
+        desc: "출발지 출발 → 목적지 도착",
+        badge: "이동 수단",
+        tip: "입국 수속 후 숙소로 이동. 이동 수단 사전 확인.",
       },
       {
-        id: "day1_card_1",
-        time: "15:40",
+        id: "item_1",
         category: "move",
-        name: "호텔 체크인 · 짐 보관",
-        desc: "요나고역 근처 호텔 체크인 후 짐 두고 몸 가볍게 출발",
-        tip: "체크인 가능 시간(보통 15:00~) 미리 확인 · 짐 보관만 먼저 요청하고 저녁에 정식 체크인도 가능",
+        name: "호텔 체크인 · 짐 정리",
+        desc: "숙소 체크인 후 짐 보관 or 정리",
+        badge: "체크인",
+        tip: "체크인 가능 시간 미리 확인. 이른 도착 시 짐만 먼저 맡기고 외출 가능.",
       },
       {
-        id: "day1_card_2",
-        time: "15:50",
-        category: "move",
-        name: "JR 패스 실권 교환",
-        desc: "요나고역 미도리노마도구치(みどりの窓口) 창구에서 교환증 → 실물 패스 발급",
-        tip: "여권 지참 필수 · 소요 10~15분 · 이용 시작일 지정 가능 · 지정석 예약도 이 창구에서 가능",
-      },
-      {
-        id: "day1_card_3",
-        time: "16:10 ~ 19:00",
+        id: "item_2",
         category: "sight",
-        name: "요나고 성터 노을",
-        desc: "17세기 성벽 석축 · 전망대에서 다이센 · 일본해 · 노을 한눈에",
-        tip: "입장 무료 · 요나고역에서 도보 약 15분 · 6월 일몰 19:30 전후 · 가는 길에 상점가 통과",
+        name: "남산 N서울타워",
+        desc: "서울 대표 랜드마크 · 전망대 & 남산공원",
+        badge: "관광",
+        tip: "케이블카 or 남산 순환버스 이용. 야경 명소로 일몰 전후 방문 추천.",
+        mapLink: "https://maps.google.com/?q=남산+N서울타워",
       },
       {
-        id: "day1_card_4",
-        time: "19:00 ~ 19:30",
-        category: "sight2",
-        name: "미나토 야마 공원",
-        desc: "항구 옆 수변 공원 · 저녁 산책 · 나카우미 호수 야경",
-        tip: "성터에서 도보 약 10분 · 입장 무료 · 밤에도 산책하기 좋은 공원",
-      },
-      {
-        id: "day1_card_5",
-        time: "19:30",
+        id: "item_3",
         category: "food",
-        name: "요나고 역전 이자카야",
-        desc: "돗토리 지방주(地酒) + 일본해 해산물",
-        tip: "요나고역 주변 상점가에 이자카야 다수 · 하마모토스이산(浜本水産) 계열 가게 추천",
+        name: "저녁 식사",
+        desc: "현지 맛집 또는 숙소 근처 식당",
+        badge: "저녁",
       },
       {
-        id: "day1_card_6",
-        time: "21:00",
-        category: "sight",
-        name: "메가 돈키호테 요나고점",
-        desc: "식품 · 잡화 · 화장품 · 기념품 한번에 · 심야까지 영업",
-        tip: "심야 영업 · 면세 카운터 이용 시 소비세 환급 가능",
-      },
-      {
-        id: "day1_card_7",
-        time: "22:00",
-        category: "move",
-        name: "편의점 들르기",
-        desc: "내일 아침 간식 · 음료 · 생필품 보충",
-        tip: "패밀리마트 · 세븐일레븐 · 로손 모두 역 근처에 있음",
-      },
-      {
-        id: "day1_card_8",
-        time: "밤",
+        id: "item_4",
         category: "sleep",
-        name: "요나고 시내 호텔",
-        desc: "요나고역 근처 숙소",
-        tip: "요나고역 근처 숙소면 다음날 아침 일찍 JR 탑승이 편리",
+        name: "숙소",
+        desc: "첫날 숙박",
       },
     ],
     mapSpots: [
       {
-        lat: 35.4922,
-        lng: 133.2364,
-        emoji: "✈️",
-        name: "요나고 공항 (기타로공항)",
-        desc: "인천 출발 → 입국 후 JR 사카이선 탑승",
-      },
-      {
-        lat: 35.4281,
-        lng: 133.3309,
-        emoji: "🚉",
-        name: "요나고역 · JR 패스 등록",
-        desc: "호텔 체크인 후 미도리노마도구치에서 패스 실권 교환",
-      },
-      {
-        lat: 35.4269,
-        lng: 133.3293,
-        emoji: "🏯",
-        name: "요나고 성터",
-        desc: "다이센 · 일본해 · 노을 전망 · 무료 입장",
-      },
-      {
-        lat: 35.4277,
-        lng: 133.3213,
-        emoji: "🌿",
-        name: "미나토 야마 공원",
-        desc: "항구 옆 수변 공원 · 나카우미 호수 야경",
-      },
-      {
-        lat: 35.429,
-        lng: 133.335,
-        emoji: "🛒",
-        name: "메가 돈키호테 요나고",
-        desc: "심야 영업 · 면세 쇼핑",
+        lat: 37.5512,
+        lng: 126.9882,
+        emoji: "🗼",
+        name: "남산 N서울타워",
+        desc: "서울 대표 전망 명소 · 남산공원",
       },
     ],
   },
   {
     day: 2,
-    title: "돗토리 사구 · 구라요시 · 코난 마을 · 온천",
-    subtitle: "JR 산인본선 · 모래 사막 → 도조 거리 → 코난 성지 → 해안 온천",
+    title: "주요 관광지",
+    subtitle: "오전 · 오후 · 저녁 일정",
     color: "#f59e0b",
     items: [
       {
-        id: "day2_card_0",
-        time: "07:30 → 08:30",
-        category: "move",
-        name: "요나고역 → 돗토리역",
-        desc: "JR 산인본선 · 약 1시간 · 패스 이용",
-        tip: "특급 슈퍼 마쓰카제 이용 시 약 50분 · Yahoo!乗換 앱으로 시간표 미리 확인",
-        mapLink:
-          "https://www.google.com/maps/dir/?api=1&origin=Yonago+Station+Japan&destination=Tottori+Station+Japan&travelmode=transit",
-      },
-      {
-        id: "day2_card_1",
-        time: "08:40 → 09:00",
-        category: "move",
-        name: "돗토리역 → 돗토리 사구",
-        desc: "노선버스 101번 · 약 20분 · 사구센터前 하차",
-        tip: "편도 약 300엔 · IC카드 이용 가능 · 배차 간격 15~20분",
-        mapLink:
-          "https://www.google.com/maps/dir/?api=1&origin=Tottori+Station+Japan&destination=Tottori+Sand+Dunes+Japan&travelmode=transit",
-      },
-      {
-        id: "day2_card_2",
-        time: "09:00 ~ 11:00",
+        id: "item_5",
         category: "sight",
-        name: "돗토리 사구 (鳥取砂丘)",
-        desc: "동서 2.4km · 남북 1km · 일본 최대 모래 언덕\n▸ 사구 능선 트레킹 (30~60분)\n▸ 낙타 탑승 체험 (유료 · 약 1,500엔)\n▸ 모래 미술관 Sand Museum (1,000엔)",
-        tip: "모래 언덕 정상에서 일본해 전망이 하이라이트 · 여름엔 운동화 권장 · 오전 방문으로 붐비기 전 여유롭게",
+        name: "오전 관광",
+        desc: "주요 명소 방문",
+        badge: "관광",
       },
       {
-        id: "day2_card_3",
-        time: "11:10 → 11:40",
-        category: "move",
-        name: "돗토리역 → 구라요시역",
-        desc: "JR 산인본선 · 약 30분 · 패스 이용",
-        tip: "사구센터前 버스 → 돗토리역 약 20분 · 열차 시간에 맞춰 여유 있게 이동",
-        mapLink:
-          "https://www.google.com/maps/dir/?api=1&origin=Tottori+Station+Japan&destination=Kurayoshi+Station+Japan&travelmode=transit",
+        id: "item_6",
+        category: "food",
+        name: "점심 식사",
+        desc: "현지 음식 체험",
+        badge: "점심",
       },
       {
-        id: "day2_card_4",
-        time: "11:45 ~ 13:30",
+        id: "item_7",
         category: "sight",
-        name: "시라카베 도조군 (白壁土蔵群)",
-        desc: "에도~메이지시대 흰 벽 창고 거리 · 구라요시의 리틀 교토\n▸ 도보 산책 · 사진 명소 · 수로 옆 고즈넉한 가로수길",
-        tip: "구라요시역에서 도보 약 10분 · 입장 무료 · 아카가와 수로 · 주변 카페에서 점심 가능",
+        name: "오후 관광",
+        desc: "추가 명소 또는 자유 시간",
+        badge: "관광",
       },
       {
-        id: "day2_card_5",
-        time: "12:00",
+        id: "item_8",
         category: "food",
-        name: "구라요시 시내 점심",
-        desc: "도조 거리 주변 카페·식당 · 현지 정식 or 구라요시 소바",
-        tip: "시라카베도조군 주변에 소규모 카페·식당 다수",
+        name: "저녁 식사",
+        desc: "현지 레스토랑",
+        badge: "저녁",
       },
       {
-        id: "day2_card_6",
-        time: "13:35 → 13:55",
-        category: "move",
-        name: "구라요시역 → 유라역 (코난 마을)",
-        desc: "JR 산인본선 · 약 20분 · 패스 이용",
-        tip: "由良駅(유라역) 하차 · 역 자체가 코난 테마로 꾸며져 있어 내리는 순간부터 분위기",
-        mapLink:
-          "https://www.google.com/maps/dir/?api=1&origin=Kurayoshi+Station+Japan&destination=Yura+Station+Tottori+Japan&travelmode=transit",
-      },
-      {
-        id: "day2_card_7",
-        time: "14:00 ~ 15:30",
-        category: "sight2",
-        name: "코난 마을 (名探偵コナン聖地)",
-        desc: "명탐정 코난 작가 아오야마 고쇼의 고향 · 유라역 주변\n▸ 코난 동상 포토존\n▸ 코난 기념관 (무료 입장)\n▸ 코난 굿즈 기념품 가게",
-        tip: "역 주변 마을 전체가 코난 테마 · 기념품 가게 규모 작으므로 여유 있게",
-      },
-      {
-        id: "day2_card_8",
-        time: "15:40 → 16:20",
-        category: "move",
-        name: "유라역 → 요나고역",
-        desc: "JR 산인본선 · 약 40분 · 패스 이용",
-        mapLink:
-          "https://www.google.com/maps/dir/?api=1&origin=Yura+Station+Tottori+Japan&destination=Yonago+Station+Japan&travelmode=transit",
-      },
-      {
-        id: "day2_card_9",
-        time: "16:30 → 16:50",
-        category: "move",
-        name: "요나고역 → 가이케 온천",
-        desc: "노선버스 · 약 20분",
-        tip: "요나고역 앞 버스 터미널에서 가이케 온천행 탑승 · 편도 약 340엔",
-        mapLink:
-          "https://www.google.com/maps/dir/?api=1&origin=Yonago+Station+Japan&destination=Kaike+Onsen+Japan&travelmode=transit",
-      },
-      {
-        id: "day2_card_10",
-        time: "17:00 ~ 18:30",
-        category: "hot",
-        name: "가이케 온천 당일 입욕",
-        desc: "일본해를 바라보는 해안 온천 · 하루 이동 피로 해소",
-        tip: "당일 입욕 가능 료칸 다수 · 700~1,200엔 · 사전 전화 확인 권장",
-      },
-      {
-        id: "day2_card_11",
-        time: "19:00",
-        category: "food",
-        name: "요나고 시내 저녁 식사",
-        desc: "돗토리 와규 · 오징어회 · 지역 이자카야",
-        tip: "온천 후 식욕이 살아나면 돗토리 와규 구이 추천",
-      },
-      {
-        id: "day2_card_12",
-        time: "밤",
+        id: "item_9",
         category: "sleep",
-        name: "요나고 시내 숙소 (연박)",
-        desc: "요나고역 근처 숙소",
+        name: "숙소",
+        desc: "둘째날 숙박",
       },
     ],
-    mapSpots: [
-      {
-        lat: 35.4281,
-        lng: 133.3309,
-        emoji: "🚃",
-        name: "요나고역 · 출발",
-        desc: "JR 산인본선으로 돗토리역 향해 출발",
-      },
-      {
-        lat: 35.5018,
-        lng: 134.2368,
-        emoji: "🚉",
-        name: "돗토리역",
-        desc: "버스 환승 후 사구로 이동",
-      },
-      {
-        lat: 35.5365,
-        lng: 134.2295,
-        emoji: "🏜",
-        name: "돗토리 사구",
-        desc: "일본 최대 모래 언덕 · 낙타 체험 · 모래 미술관",
-      },
-      {
-        lat: 35.4317,
-        lng: 133.8239,
-        emoji: "🏛",
-        name: "구라요시역 · 시라카베도조군",
-        desc: "에도~메이지시대 흰 벽 창고 거리",
-      },
-      {
-        lat: 35.4789,
-        lng: 133.6631,
-        emoji: "🔍",
-        name: "유라역 · 코난 마을",
-        desc: "명탐정 코난 작가 고향",
-      },
-      {
-        lat: 35.4579,
-        lng: 133.3634,
-        emoji: "♨️",
-        name: "가이케 온천",
-        desc: "해안 온천 · 당일 입욕",
-      },
-    ],
+    mapSpots: [],
   },
   {
     day: 3,
-    title: "아다치 미술관 · 귀국",
-    subtitle: "일본 정원 1위 · 야스기역 → 요나고 공항 → 귀갓길",
+    title: "마지막 관광 & 귀국",
+    subtitle: "오전 관광 · 공항 이동 · 귀국",
     color: "#22c55e",
     items: [
       {
-        id: "day3_card_0",
-        time: "09:00 → 09:15",
-        category: "move",
-        name: "요나고역 → 야스기역",
-        desc: "JR 산인본선 · 약 15분 · 패스 이용",
-        tip: "야스기역(安来駅)은 시마네현 · 요나고에서 서쪽으로 약 15분",
-        mapLink:
-          "https://www.google.com/maps/dir/?api=1&origin=Yonago+Station+Japan&destination=Yasugi+Station+Japan&travelmode=transit",
+        id: "item_10",
+        category: "sight",
+        name: "오전 관광",
+        desc: "마지막 명소 방문 또는 쇼핑",
+        badge: "관광",
       },
       {
-        id: "day3_card_1",
-        time: "09:20 → 09:40",
-        category: "move",
-        name: "야스기역 → 아다치 미술관",
-        desc: "미술관 무료 셔틀버스 · 약 20분",
-        tip: "야스기역 앞에서 무료 탑승 · 열차 도착 시간에 맞춰 운행 · 약 30분 간격",
-        mapLink:
-          "https://www.google.com/maps/dir/?api=1&origin=Yasugi+Station+Japan&destination=Adachi+Museum+of+Art+Japan&travelmode=transit",
-      },
-      {
-        id: "day3_card_2",
-        time: "09:40 ~ 12:30",
-        category: "sight2",
-        name: "아다치 미술관 (足立美術館)",
-        desc: "미국 원예 잡지 20년 연속 일본 정원 1위 · 요코야마 다이칸 일본화 소장\n▸ 생케이엔 정원 창문 액자 감상\n▸ 관내 카페에서 정원 뷰 휴식",
-        tip: "⚠️ 입장료 2,300엔 · 영업 09:00~17:30 (하절기) · 1.5~2시간 소요",
-      },
-      {
-        id: "day3_card_3",
-        time: "12:00",
+        id: "item_11",
         category: "food",
-        name: "미술관 내 레스토랑",
-        desc: "정원을 바라보며 점심 · 현지 정식 or 간단 카페 메뉴",
-        tip: "창 너머 정원 전망 · 12:30 이전 퇴관 목표",
+        name: "점심 식사",
+        desc: "귀국 전 마지막 현지 식사",
+        badge: "점심",
       },
       {
-        id: "day3_card_4",
-        time: "12:30 → 13:15",
+        id: "item_12",
         category: "move",
-        name: "아다치 미술관 → 야스기역 → 요나고역",
-        desc: "셔틀버스 약 20분 + JR 산인본선 약 15분 · 패스 이용",
-        tip: "요나고역에서 코인로커 짐 찾기 · 공항 이동 전 마지막 편의점 들르기",
-        mapLink:
-          "https://www.google.com/maps/dir/?api=1&origin=Adachi+Museum+of+Art+Japan&destination=Yonago+Station+Japan&travelmode=transit",
+        name: "공항 이동",
+        desc: "숙소 체크아웃 후 공항으로 이동",
+        badge: "이동 수단",
+        tip: "국제선 수속은 출발 2시간 전까지. 짐 찾기 후 이동 수단 확인.",
       },
       {
-        id: "day3_card_5",
-        time: "13:30 → 13:45",
+        id: "item_13",
         category: "move",
-        name: "요나고역 → 요나고공항역",
-        desc: "JR 사카이선 · 약 15분 · 패스 이용",
-        tip: "요나고공항역 하차 후 도보 약 5분으로 터미널 도착",
-        mapLink:
-          "https://www.google.com/maps/dir/?api=1&origin=Yonago+Station+Japan&destination=Yonago+Airport+Station+Japan&travelmode=transit",
-      },
-      {
-        id: "day3_card_6",
-        time: "13:50",
-        category: "move",
-        name: "요나고 공항 도착 · 출국 수속",
-        desc: "체크인 · 수하물 위탁 · 출국심사 · 탑승 대기",
-        tip: "국제선 수속은 출발 1시간 30분 전 마감 기준 · 면세 구역 쇼핑",
-      },
-      {
-        id: "day3_card_7",
-        time: "15:50 → 17:45",
-        category: "move",
-        name: "요나고 출발 → 한국 도착",
-        desc: "요나고 공항 15:50 출발 · 인천 17:45 도착",
+        name: "출국 수속 & 귀국",
+        desc: "체크인 · 보안 검색 · 출국심사 · 탑승",
+        badge: "귀국",
       },
     ],
-    mapSpots: [
-      {
-        lat: 35.4281,
-        lng: 133.3309,
-        emoji: "🚃",
-        name: "요나고역 · 출발",
-        desc: "야스기역으로 출발",
-      },
-      {
-        lat: 35.428,
-        lng: 133.2593,
-        emoji: "🚉",
-        name: "야스기역",
-        desc: "아다치미술관 무료 셔틀버스 탑승",
-      },
-      {
-        lat: 35.38,
-        lng: 133.194,
-        emoji: "🎨",
-        name: "아다치 미술관",
-        desc: "일본 정원 1위 · 입장 2,300엔",
-      },
-      {
-        lat: 35.4922,
-        lng: 133.2364,
-        emoji: "✈️",
-        name: "요나고 공항 출발",
-        desc: "귀국 · 인천행 탑승",
-      },
-    ],
+    mapSpots: [],
   },
 ];
 
 export const CHECKLIST_GROUPS: ChecklistGroup[] = [
   {
+    section: "해외",
     label: "필수 서류",
     items: [
       { id: "checklist_0", label: "여권", note: "유효기간 6개월 이상" },
@@ -458,9 +169,10 @@ export const CHECKLIST_GROUPS: ChecklistGroup[] = [
     ],
   },
   {
+    section: "해외",
     label: "금융",
     items: [
-      { id: "checklist_4", label: "엔화 환전", note: "최소 5만엔 권장" },
+      { id: "checklist_4", label: "현지 화폐 환전" },
       {
         id: "checklist_5",
         label: "해외 결제 신용카드",
@@ -470,52 +182,52 @@ export const CHECKLIST_GROUPS: ChecklistGroup[] = [
     ],
   },
   {
+    section: "국내",
     label: "전자기기",
     items: [
       { id: "checklist_7", label: "스마트폰 충전기" },
       { id: "checklist_8", label: "보조배터리", note: "기내 반입만 가능" },
       {
         id: "checklist_9",
-        label: "일본 eSIM 개통",
-        note: "출발 전 앱에서 설치",
+        label: "현지 유심 / eSIM",
+        note: "출발 전 미리 준비",
       },
-      { id: "checklist_10", label: "변환 플러그", note: "일본 A타입 · 110V" },
+      {
+        id: "checklist_10",
+        label: "변환 플러그",
+        note: "국가별 규격 사전 확인",
+      },
     ],
   },
   {
+    section: "국내",
     label: "의류",
     items: [
       {
         id: "checklist_11",
-        label: "여름 옷 (2~3벌)",
-        note: "통기성 좋은 소재",
+        label: "옷 (일수에 맞게)",
+        note: "현지 날씨 기준",
       },
       { id: "checklist_12", label: "가벼운 겉옷", note: "실내 냉방 대비" },
       {
         id: "checklist_13",
-        label: "트레킹화 or 운동화",
-        note: "사구 트레킹 대비",
+        label: "편한 신발",
+        note: "많이 걷는 일정 대비",
       },
-      { id: "checklist_14", label: "샌들" },
       {
-        id: "checklist_15",
+        id: "checklist_14",
         label: "접이식 우산 or 우비",
-        note: "여름 소나기 대비",
-      },
-      {
-        id: "checklist_16",
-        label: "온천 타월",
-        note: "가이케 온천 · 료칸 대여 가능하나 개인 지참 권장",
       },
     ],
   },
   {
+    section: "국내",
     label: "의약품 · 위생",
     items: [
-      { id: "checklist_17", label: "상비약", note: "소화제·진통제·지사제" },
-      { id: "checklist_18", label: "선크림", note: "SPF 50 이상 권장" },
-      { id: "checklist_19", label: "모기 기피제", note: "여름철 필수" },
-      { id: "checklist_20", label: "개인 세면도구" },
+      { id: "checklist_15", label: "상비약", note: "소화제·진통제·지사제" },
+      { id: "checklist_16", label: "선크림", note: "SPF 50 이상 권장" },
+      { id: "checklist_17", label: "모기 기피제" },
+      { id: "checklist_18", label: "개인 세면도구" },
     ],
   },
 ];
@@ -524,56 +236,199 @@ export const EXPENSE_ROWS: ExpenseRow[] = [
   {
     id: "budget_0",
     label: "✈️ 항공권 (왕복)",
-    estimate: "20~35만원",
+    estimate: "–",
   },
   {
     id: "budget_1",
-    label: "🏨 숙박 (2박)",
-    estimate: "10,000~18,000엔",
-    jpyRange: [10000, 18000],
-    subRows: [{ label: "요나고 시내 호텔 1박 5,000~9,000엔 기준" }],
+    label: "🏨 숙박",
+    estimate: "–",
+    subRows: [{ label: "숙박 일수 × 1박 단가" }],
   },
   {
     id: "budget_2",
-    label: "🚃 교통비 (JR 패스)",
-    estimate: "4,600~5,600엔",
-    jpyRange: [4600, 5600],
-    subRows: [
-      {
-        label:
-          "JR 산인 지역 패스 약 4,000엔 · 사구 버스 왕복 약 600엔 · 가이케 온천 버스 왕복 약 680엔",
-      },
-    ],
+    label: "🚃 교통비",
+    estimate: "–",
+    subRows: [{ label: "공항 이동 · 시내 교통 · 교통패스 등" }],
   },
   {
     id: "budget_3",
-    label: "🍜 식비 (3일)",
-    estimate: "11,000~16,000엔",
-    jpyRange: [11000, 16000],
-    subRows: [{ label: "하루 평균 3,700~5,300엔 · 3끼 + 간식" }],
+    label: "🍜 식비",
+    estimate: "–",
+    subRows: [{ label: "하루 평균 식비 × 일수 · 3끼 + 간식" }],
   },
   {
     id: "budget_4",
-    label: "♨️ 관광 · 체험",
-    estimate: "4,000~5,500엔",
-    jpyRange: [4000, 5500],
-    subRows: [
-      {
-        label:
-          "아다치미술관 2,300엔 · 가이케 온천 700~1,200엔 · 모래 미술관 1,000엔(선택) · 낙타 탑승 1,500엔(선택)",
-      },
-    ],
+    label: "🎫 관광 · 체험",
+    estimate: "–",
+    subRows: [{ label: "입장료 · 체험 비용 합계" }],
   },
   {
     id: "budget_5",
     label: "🛍 쇼핑 · 기념품",
-    estimate: "5,000~10,000엔",
-    jpyRange: [5000, 10000],
-    subRows: [{ label: "코난 굿즈 · 돗토리 특산품 등" }],
+    estimate: "–",
   },
   {
     id: "budget_6",
     label: "🗂 기타 비용",
     estimate: "자유 입력",
+  },
+];
+
+export const TRAVEL_TIPS: TravelTip[] = [
+  {
+    title: "🛂 사전 입국 신청 확인",
+    body: "목적지에 따라 사전 입국 허가(e-비자, ETA 등)가 필요할 수 있음. 출발 최소 2주 전에 확인 및 신청.",
+  },
+  {
+    title: "📋 현지 면세 한도 확인",
+    body: "주류·담배·식품 등 반입 가능 수량은 국가마다 다름. 초과 시 세관 신고 또는 압수될 수 있으므로 사전 확인 필수.",
+  },
+  {
+    title: "💰 현지 화폐 잔돈 처리",
+    body: "귀국 전 공항·편의점·자판기에서 소진 권장. 동전은 국내 환전 불가한 경우가 많음.",
+  },
+  {
+    title: "🆘 비상 연락처 저장",
+    body: "주재국 대한민국 대사관·영사관 번호와 현지 긴급번호(경찰·구급)를 스마트폰에 미리 저장.",
+  },
+];
+
+export const AIRPORT_BLOCKS: AirportBlock[] = [
+  {
+    title: "🇰🇷 국내 공항 출국 절차 (한국 출발)",
+    steps: [
+      {
+        num: 1,
+        tag: "공항 도착",
+        title: "출발 2시간 30분~3시간 전 도착",
+        body: "터미널 확인 필수 — 항공사마다 다름. 사전에 공항 이동 시간 확인.",
+      },
+      {
+        num: 2,
+        tag: "체크인",
+        title: "탑승 수속 + 수하물 위탁",
+        body: "카운터 줄 서기 또는 셀프 키오스크로 탑승권 발급. 보조배터리·라이터는 기내 직접 소지.",
+      },
+      {
+        num: 3,
+        tag: "보안 검색",
+        title: "출국장 → 보안 검색대 통과",
+        body: "액체류 100ml 이하 + 지퍼백 포장. 노트북·태블릿은 가방에서 꺼내기.",
+      },
+      {
+        num: 4,
+        tag: "출국심사",
+        title: "자동화 게이트 (스마트 출입국)",
+        body: "만 19세 이상 내국인은 자동화 게이트 이용 가능 — 여권 스캔 후 바로 통과.",
+        tip: "사전 등록 없이 당일 여권으로 바로 이용 가능.",
+      },
+      {
+        num: 5,
+        tag: "면세 & 탑승",
+        title: "면세점 이용 후 탑승 게이트 이동",
+        body: "공항 규모에 따라 게이트까지 이동 시간 여유 있게 확보.",
+      },
+    ],
+  },
+  {
+    title: "🛬 현지 공항 입국 절차",
+    steps: [
+      {
+        num: 1,
+        tag: "검역",
+        title: "검역 확인 후 통과",
+        body: "사전 등록 서비스 이용 시 QR 제시로 신속 통과.",
+      },
+      {
+        num: 2,
+        tag: "입국심사",
+        title: "여권 심사 + 지문·사진 촬영",
+        body: "외국인 심사대 줄 서기 → 여권 제출 → 양 검지 지문 채취 → 카메라 촬영.",
+        tip: "소요시간 5~20분. 공항 규모에 따라 대기 시간 상이.",
+      },
+      {
+        num: 3,
+        tag: "수하물",
+        title: "짐 찾기",
+        body: "전광판에서 항공편 벨트 번호 확인 후 수취.",
+      },
+      {
+        num: 4,
+        tag: "세관",
+        title: "세관 신고",
+        body: "신고 물품 없으면 면세 통로(녹색 라인)로 통과. 현지 면세 한도 사전 확인 권장.",
+      },
+      {
+        num: 5,
+        tag: "도착 로비",
+        title: "입국 완료 → 시내 이동",
+        body: "대중교통 또는 택시·셔틀버스 이용. 사전에 시내 이동 수단 확인.",
+      },
+    ],
+  },
+  {
+    title: "🛫 현지 공항 출국 절차",
+    steps: [
+      {
+        num: 1,
+        tag: "공항 도착",
+        title: "출발 2시간 전까지 공항 도착",
+        body: "국제선 체크인 마감은 출발 1시간 30분 전. 여유 있게 이동.",
+      },
+      {
+        num: 2,
+        tag: "체크인",
+        title: "탑승 수속 + 수하물 위탁",
+        body: "여권 + 항공권(e-티켓 캡처 or 앱) 제시. 보조배터리·라이터는 기내 직접 소지.",
+      },
+      {
+        num: 3,
+        tag: "보안 검색",
+        title: "보안 검색대 통과",
+        body: "액체류 100ml 이하 지퍼백 포장. 국가마다 검색 방식이 다를 수 있음.",
+      },
+      {
+        num: 4,
+        tag: "출국심사",
+        title: "여권 + 탑승권 제시",
+        body: "외국인 유인 심사대 또는 자동화 게이트 이용. 지문 채취 후 출국 스탬프.",
+      },
+      {
+        num: 5,
+        tag: "탑승 대기",
+        title: "면세 구역 · 탑승",
+        body: "탑승 시작 15분 전까지 게이트 도착. 현지 화폐 잔돈은 출국 전 소진.",
+      },
+    ],
+  },
+  {
+    title: "🇰🇷 국내 공항 입국 절차 (한국 도착)",
+    steps: [
+      {
+        num: 1,
+        tag: "입국심사",
+        title: "자동입국심사 or 유인 심사대",
+        body: "한국인은 자동화 게이트(스마트 출입국) 이용 가능. 소요 1~3분.",
+      },
+      {
+        num: 2,
+        tag: "수하물",
+        title: "수하물 벨트에서 짐 찾기",
+        body: "도착 모니터에서 편명으로 벨트 번호 확인.",
+      },
+      {
+        num: 3,
+        tag: "세관 신고",
+        title: "세관 신고 (해외 구매 물품)",
+        body: "면세 한도: 미화 800달러 이하. 초과 시 세관 신고서 작성.",
+        tip: "자진신고 키오스크로 신고하면 30% 관세 감면.",
+      },
+      {
+        num: 4,
+        tag: "입국 완료",
+        title: "입국장 → 귀가",
+        body: "대중교통 또는 버스·택시 이용. 사전에 귀가 수단 확인.",
+      },
+    ],
   },
 ];

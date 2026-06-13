@@ -1,0 +1,9 @@
+packages: [ . ]
+allowBuilds:
+  msw: true
+  sharp: true
+  unrs-resolver: true
+minimumReleaseAgeExclude:
+  - postcss@8.5.10
+overrides:
+  postcss@<8.5.10: ^8.5.10

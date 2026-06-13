@@ -20,8 +20,6 @@ import {
   type Participant,
 } from "@/lib/participants-queries";
 import { SESSION_KEY } from "@/lib/constants";
-import { TRIP_ID } from "@/lib/trip-data";
-
 function ParticipantAvatar({
   p,
   isMe,
@@ -199,7 +197,6 @@ export function ParticipantsStrip() {
           event: "*",
           schema: "public",
           table: "participants",
-          filter: `trip_id=eq.${TRIP_ID}`,
         },
         (payload) => {
           if (

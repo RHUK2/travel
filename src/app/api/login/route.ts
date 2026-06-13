@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
 import { supabase } from "@/lib/supabase";
-import { TRIP_ID } from "@/lib/trip-data";
 
 export async function POST(req: NextRequest) {
   const { name, passcode } = await req.json();
@@ -16,7 +15,6 @@ export async function POST(req: NextRequest) {
   const { data: participant, error } = await supabase
     .from("participants")
     .select("id, name, photo_url, message")
-    .eq("trip_id", TRIP_ID)
     .eq("name", name)
     .single();
 
@@ -32,7 +30,6 @@ export async function POST(req: NextRequest) {
   const { error: updateError } = await supabase
     .from("participants")
     .update({ token })
-    .eq("trip_id", TRIP_ID)
     .eq("id", participant.id);
 
   if (updateError) {

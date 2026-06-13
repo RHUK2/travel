@@ -1,5 +1,4 @@
 import { supabase } from "@/lib/supabase";
-import { TRIP_ID } from "@/lib/trip-data";
 import { NextRequest, NextResponse } from "next/server";
 
 export async function POST(req: NextRequest) {
@@ -12,7 +11,6 @@ export async function POST(req: NextRequest) {
   const { data, error } = await supabase
     .from("participants")
     .select("token")
-    .eq("trip_id", TRIP_ID)
     .eq("id", userId)
     .single();
 

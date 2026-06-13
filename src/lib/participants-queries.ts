@@ -1,6 +1,5 @@
 export interface Participant {
   id: string;
-  trip_id: string;
   name: string;
   photo_url: string;
   message: string;

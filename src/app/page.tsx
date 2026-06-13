@@ -3,6 +3,7 @@ import { PasscodeGate } from "@/components/passcode-gate";
 import { RealtimeProvider } from "@/components/realtime-provider";
 import { ScrollToTop } from "@/components/scroll-to-top";
 import { TripTabs } from "@/components/trip-tabs";
+import { TRIP_FOOTER } from "@/lib/trip-data";
 
 export default function TripPage() {
   return (
@@ -14,7 +15,7 @@ export default function TripPage() {
             <TripTabs />
           </main>
           <footer className="text-muted-foreground border-t px-4 py-6 text-center text-xs">
-            요나고 · 돗토리현 · 대중교통 2박 3일 여름 여행
+            {TRIP_FOOTER}
           </footer>
         </div>
         <ScrollToTop />

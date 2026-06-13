@@ -1,7 +1,5 @@
 import type { PersonalState } from "@/lib/types";
 
-export type { PersonalState };
-
 export async function fetchPersonalStates(
   userId: string,
 ): Promise<PersonalState[]> {
