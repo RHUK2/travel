@@ -96,7 +96,7 @@ export function MapSection({ spots, color }: MapSectionProps) {
           variant="secondary"
           size="sm"
           onClick={fitBounds}
-          className="absolute bottom-3 left-3 z-[1000] h-8 gap-1.5 rounded-full text-xs shadow-md"
+          className="absolute bottom-3 right-3 z-[1000] h-8 gap-1.5 rounded-full text-xs shadow-md"
         >
           <LocateFixed data-icon="inline-start" />
           초기화
