@@ -6,7 +6,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { useTripStore } from "@/store/trip-store";
-import { CHECKLIST_GROUPS, TRIP_ID } from "@/lib/trip-data";
+import { CHECKLIST_GROUPS } from "@/lib/trip-data";
 import { supabase } from "@/lib/supabase";
 
 export function ChecklistTab() {
@@ -27,7 +27,6 @@ export function ChecklistTab() {
     await supabase
       .from("personal_states")
       .update({ is_done: false } as Record<string, unknown>)
-      .eq("trip_id", TRIP_ID)
       .eq("user_id", currentUser.id)
       .in("item_id", ids);
   }, [currentUser, setPersonalState]);
@@ -49,43 +48,55 @@ export function ChecklistTab() {
         </Button>
       </div>
 
-      {CHECKLIST_GROUPS.map((group) => (
-        <div key={group.label} className="flex flex-col gap-2">
-          <p className="text-muted-foreground text-[11px] font-bold tracking-widest uppercase">
-            {group.label}
-          </p>
-          <div className="overflow-hidden rounded-xl border">
-            {group.items.map((item, idx) => {
-              const isDone = personalStates[item.id]?.is_done ?? false;
-              return (
-                <div key={item.id}>
-                  <label className="hover:bg-muted/50 flex cursor-pointer items-center gap-3 px-4 py-3 transition-colors">
-                    <Checkbox
-                      checked={isDone}
-                      onCheckedChange={(checked) =>
-                        handleToggle(item.id, !!checked)
-                      }
-                    />
-                    <span
-                      className={
-                        isDone ? "text-muted-foreground line-through" : ""
-                      }
-                    >
-                      {item.label}
-                    </span>
-                    {item.note && (
-                      <span className="text-muted-foreground ml-auto text-xs">
-                        {item.note}
+      {CHECKLIST_GROUPS.map((group, idx) => {
+        const prevGroup = CHECKLIST_GROUPS[idx - 1];
+        const isNewSection = idx === 0 || prevGroup.section !== group.section;
+        return (
+          <div key={group.label} className="flex flex-col gap-2">
+            {isNewSection && (
+              <div className="flex items-center gap-2 pt-1">
+                <span className="bg-primary text-primary-foreground rounded-full px-2.5 py-0.5 text-[11px] font-bold">
+                  {group.section === "해외" ? "✈️ 해외" : "🏠 국내"}
+                </span>
+                <div className="bg-border h-px flex-1" />
+              </div>
+            )}
+            <p className="text-muted-foreground text-[11px] font-bold tracking-widest uppercase">
+              {group.label}
+            </p>
+            <div className="overflow-hidden rounded-xl border">
+              {group.items.map((item, idx) => {
+                const isDone = personalStates[item.id]?.is_done ?? false;
+                return (
+                  <div key={item.id}>
+                    <label className="hover:bg-muted/50 flex cursor-pointer items-center gap-3 px-4 py-3 transition-colors">
+                      <Checkbox
+                        checked={isDone}
+                        onCheckedChange={(checked) =>
+                          handleToggle(item.id, !!checked)
+                        }
+                      />
+                      <span
+                        className={
+                          isDone ? "text-muted-foreground line-through" : ""
+                        }
+                      >
+                        {item.label}
                       </span>
-                    )}
-                  </label>
-                  {idx < group.items.length - 1 && <Separator />}
-                </div>
-              );
-            })}
+                      {item.note && (
+                        <span className="text-muted-foreground ml-auto text-xs">
+                          {item.note}
+                        </span>
+                      )}
+                    </label>
+                    {idx < group.items.length - 1 && <Separator />}
+                  </div>
+                );
+              })}
+            </div>
           </div>
-        </div>
-      ))}
+        );
+      })}
     </div>
   );
 }

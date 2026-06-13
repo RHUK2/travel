@@ -3,55 +3,66 @@
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { Separator } from "@/components/ui/separator";
-import { fetchRate } from "@/lib/rate-queries";
 import { EXPENSE_NOTE, EXPENSE_ROWS } from "@/lib/trip-data";
 import type { ExpenseRow } from "@/lib/types";
 import { useTripStore } from "@/store/trip-store";
-import { useQuery } from "@tanstack/react-query";
 import { Plus, RotateCcw, X } from "lucide-react";
 import { useCallback, useEffect, useRef, useState } from "react";
+
+const RATE_ITEM_ID = "rate";
+const DEFAULT_RATE = 0;
 
 function formatEstimate(row: ExpenseRow, rate: number): string {
   if (!row.jpyRange) return row.estimate;
   const [min, max] = row.jpyRange;
-  const krwMin = (min * rate / 10000).toFixed(1);
-  const krwMax = (max * rate / 10000).toFixed(1);
+  const krwMin = ((min * rate) / 10000).toFixed(1);
+  const krwMax = ((max * rate) / 10000).toFixed(1);
   return `${min.toLocaleString()}~${max.toLocaleString()}엔 (약 ${krwMin}~${krwMax}만원)`;
 }
 
-type ExpenseChild = { id: string; label: string; amount: string };
+type Currency = "krw" | "jpy";
+type ExpenseChild = {
+  id: string;
+  label: string;
+  amount: string;
+  currency: Currency;
+};
 
 function emptyChild(): ExpenseChild {
-  return { id: crypto.randomUUID(), label: "", amount: "" };
+  return { id: crypto.randomUUID(), label: "", amount: "0", currency: "krw" };
 }
 
 function parseChildren(raw: string): ExpenseChild[] {
   if (!raw) return [emptyChild()];
   try {
     const parsed = JSON.parse(raw);
-    if (Array.isArray(parsed) && parsed.length > 0) return parsed;
+    if (Array.isArray(parsed) && parsed.length > 0)
+      return parsed.map((c) => ({ ...c, currency: c.currency ?? "krw" }));
   } catch {
-    // 구 포맷: 단순 숫자 문자열 → 단일 항목으로 마이그레이션
-    return [{ id: crypto.randomUUID(), label: "", amount: raw }];
+    return [
+      { id: crypto.randomUUID(), label: "", amount: raw, currency: "krw" },
+    ];
   }
   return [emptyChild()];
 }
 
 export function ExpenseTab() {
   const { personalStates, upsertPersonal } = useTripStore();
-  const { data: rate = 9.44 } = useQuery({
-    queryKey: ["rate"],
-    queryFn: fetchRate,
-    staleTime: 60 * 60 * 1000,
-  });
   const debounceTimers = useRef<Record<string, ReturnType<typeof setTimeout>>>(
     {},
   );
 
-  const [children, setChildren] = useState<Record<string, ExpenseChild[]>>(
-    () =>
-      Object.fromEntries(EXPENSE_ROWS.map((r) => [r.id, [emptyChild()]])),
+  const [rateInput, setRateInput] = useState("");
+  const [children, setChildren] = useState<Record<string, ExpenseChild[]>>(() =>
+    Object.fromEntries(EXPENSE_ROWS.map((r) => [r.id, [emptyChild()]])),
   );
 
   useEffect(() => {
@@ -61,9 +72,12 @@ export function ExpenseTab() {
     };
   }, []);
 
-  // sync store → state once personal data loads
+  // sync store → local state once personal data loads
   useEffect(() => {
+    const storedRate = personalStates[RATE_ITEM_ID]?.value;
     // eslint-disable-next-line react-hooks/set-state-in-effect
+    if (storedRate) setRateInput(storedRate);
+
     setChildren(
       Object.fromEntries(
         EXPENSE_ROWS.map((r) => {
@@ -74,6 +88,20 @@ export function ExpenseTab() {
     );
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [Object.keys(personalStates).length]);
+
+  const rate = rateInput === "" ? DEFAULT_RATE : parseFloat(rateInput) || 0;
+
+  const handleRateChange = useCallback(
+    (val: string) => {
+      setRateInput(val);
+      if (debounceTimers.current[RATE_ITEM_ID])
+        clearTimeout(debounceTimers.current[RATE_ITEM_ID]);
+      debounceTimers.current[RATE_ITEM_ID] = setTimeout(() => {
+        upsertPersonal(RATE_ITEM_ID, { value: val });
+      }, 600);
+    },
+    [upsertPersonal],
+  );
 
   const sync = useCallback(
     (rowId: string, rows: ExpenseChild[]) => {
@@ -87,10 +115,28 @@ export function ExpenseTab() {
   );
 
   const handleChildChange = useCallback(
-    (rowId: string, childId: string, field: "label" | "amount", val: string) => {
+    (
+      rowId: string,
+      childId: string,
+      field: "label" | "amount",
+      val: string,
+    ) => {
       setChildren((prev) => {
         const updated = prev[rowId].map((c) =>
           c.id === childId ? { ...c, [field]: val } : c,
+        );
+        sync(rowId, updated);
+        return { ...prev, [rowId]: updated };
+      });
+    },
+    [sync],
+  );
+
+  const handleCurrencyChange = useCallback(
+    (rowId: string, childId: string, currency: Currency) => {
+      setChildren((prev) => {
+        const updated = prev[rowId].map((c) =>
+          c.id === childId ? { ...c, currency } : c,
         );
         sync(rowId, updated);
         return { ...prev, [rowId]: updated };
@@ -132,11 +178,17 @@ export function ExpenseTab() {
     }
   }, [upsertPersonal]);
 
-  const rowSubtotal = (rowId: string) =>
-    (children[rowId] ?? []).reduce((s, c) => {
+  const toKrw = useCallback(
+    (c: ExpenseChild) => {
       const n = Number(c.amount.replace(/,/g, "") || 0);
-      return s + (isNaN(n) ? 0 : n);
-    }, 0);
+      if (isNaN(n)) return 0;
+      return c.currency === "jpy" ? Math.round(n * rate) : n;
+    },
+    [rate],
+  );
+
+  const rowSubtotal = (rowId: string) =>
+    (children[rowId] ?? []).reduce((s, c) => s + toKrw(c), 0);
 
   const total = EXPENSE_ROWS.reduce((sum, r) => sum + rowSubtotal(r.id), 0);
 
@@ -155,6 +207,27 @@ export function ExpenseTab() {
           <RotateCcw className="h-3.5 w-3.5" />
           초기화
         </Button>
+      </div>
+
+      <div className="space-y-3">
+        <div className="flex items-center gap-2">
+          <span className="text-muted-foreground shrink-0 text-xs">
+            💱 엔/원 환율
+          </span>
+          <Input
+            type="number"
+            min={0}
+            step={0.01}
+            placeholder={String(DEFAULT_RATE)}
+            value={rateInput}
+            onChange={(e) => handleRateChange(e.target.value)}
+            className="h-7 w-24 text-right text-xs tabular-nums"
+          />
+          <span className="text-muted-foreground text-xs">원/엔</span>
+        </div>
+        <p className="text-muted-foreground text-xs leading-relaxed whitespace-pre-line">
+          {EXPENSE_NOTE}
+        </p>
       </div>
 
       <div className="overflow-hidden rounded-xl border text-sm">
@@ -177,7 +250,7 @@ export function ExpenseTab() {
                   </span>
                 </div>
                 {showSubtotal && (
-                  <span className="text-muted-foreground tabular-nums text-xs">
+                  <span className="text-muted-foreground text-xs tabular-nums">
                     소계 {subtotal.toLocaleString("ko-KR")}원
                   </span>
                 )}
@@ -205,21 +278,45 @@ export function ExpenseTab() {
                       placeholder="항목명"
                       value={child.label}
                       onChange={(e) =>
-                        handleChildChange(row.id, child.id, "label", e.target.value)
+                        handleChildChange(
+                          row.id,
+                          child.id,
+                          "label",
+                          e.target.value,
+                        )
                       }
                       className="h-8 min-w-0 flex-1 text-sm"
                     />
                     <Input
                       type="number"
                       min={0}
-                      step={10000}
+                      step={child.currency === "jpy" ? 100 : 1000}
                       placeholder="0"
                       value={child.amount}
                       onChange={(e) =>
-                        handleChildChange(row.id, child.id, "amount", e.target.value)
+                        handleChildChange(
+                          row.id,
+                          child.id,
+                          "amount",
+                          e.target.value,
+                        )
                       }
-                      className="h-8 w-28 shrink-0 text-right tabular-nums text-sm"
+                      className="h-8 w-24 shrink-0 text-right text-sm tabular-nums"
                     />
+                    <Select
+                      value={child.currency}
+                      onValueChange={(val) =>
+                        handleCurrencyChange(row.id, child.id, val as Currency)
+                      }
+                    >
+                      <SelectTrigger className="h-8 w-14 shrink-0 text-xs">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="krw">원</SelectItem>
+                        <SelectItem value="jpy">엔</SelectItem>
+                      </SelectContent>
+                    </Select>
                     <Button
                       variant="ghost"
                       size="icon"
@@ -259,16 +356,6 @@ export function ExpenseTab() {
           </span>
         </CardContent>
       </Card>
-
-      <Separator />
-      <div className="space-y-1.5">
-        <p className="text-muted-foreground text-xs">
-          💱 현재 환율: <span className="font-semibold">{rate.toFixed(2)}원/엔</span>
-        </p>
-        <p className="text-muted-foreground text-xs leading-relaxed whitespace-pre-line">
-          {EXPENSE_NOTE}
-        </p>
-      </div>
     </div>
   );
 }
