@@ -2,14 +2,38 @@
 
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { TAB_KEY } from "@/lib/constants";
-import { DAY_LABELS, DAYS } from "@/lib/trip-data";
+import { DAYS } from "@/lib/trip-data";
+import type { Category } from "@/lib/types";
 import { useEffect, useRef, useState } from "react";
 import { AirportTab } from "./airport-tab";
+import { CategoryTab } from "./category-tab";
 import { ChecklistTab } from "./checklist-tab";
-import { DaySection } from "./day-section";
 import { ExpenseTab } from "./expense-tab";
+import { MapSection } from "./map-section";
 
-const DEFAULT_TAB = "day1";
+const DEFAULT_TAB = "sight";
+
+const CATEGORY_GROUPS: {
+  value: string;
+  label: string;
+  icon: string;
+  categories: Category[];
+}[] = [
+  {
+    value: "sight",
+    label: "관광 & 체험",
+    icon: "🏛️",
+    categories: ["sight", "sight2", "hot"],
+  },
+  { value: "food", label: "식사", icon: "🍜", categories: ["food"] },
+  { value: "move", label: "이동", icon: "🚌", categories: ["move"] },
+  { value: "sleep", label: "숙박", icon: "🛏", categories: ["sleep"] },
+  { value: "shop", label: "쇼핑", icon: "🛍", categories: ["shop"] },
+  { value: "etc", label: "기타", icon: "📌", categories: ["etc"] },
+];
+
+const ALL_ITEMS = DAYS.flatMap((day) => day.items);
+const ALL_SPOTS = DAYS.flatMap((day) => day.mapSpots);
 
 export function TripTabs() {
   const [activeTab, setActiveTab] = useState(() => {
@@ -93,88 +117,81 @@ export function TripTabs() {
   };
 
   return (
-    <Tabs value={activeTab} onValueChange={handleValueChange}>
-      <div
-        ref={containerRef}
-        className="cursor-grab [scrollbar-width:none] overflow-x-auto overflow-y-hidden select-none active:cursor-grabbing [&::-webkit-scrollbar]:hidden"
-        style={{
-          maskImage:
-            mask === "both"
-              ? "linear-gradient(to right, transparent 0%, black 5%, black 95%, transparent 100%)"
-              : mask === "left"
-                ? "linear-gradient(to right, transparent 0%, black 5%)"
-                : mask === "right"
-                  ? "linear-gradient(to right, black 95%, transparent 100%)"
-                  : undefined,
-        }}
-        onMouseDown={handleMouseDown}
-        onMouseMove={handleMouseMove}
-        onMouseUp={handleMouseUp}
-        onMouseLeave={handleMouseUp}
-        onClick={handleContainerClick}
-      >
-        <TabsList className="gap-1.5 bg-transparent px-0 py-1 group-data-horizontal/tabs:h-auto">
-          {DAYS.map((day, i) => (
-            <TabsTrigger
-              key={`day${day.day}`}
-              value={`day${day.day}`}
-              className="data-[state=inactive]:bg-muted data-[state=inactive]:text-muted-foreground rounded-full border border-transparent px-3 py-1.5 text-xs font-medium whitespace-nowrap transition-all data-[state=active]:shadow-sm md:px-4 md:text-sm"
-              style={
-                activeTab === `day${day.day}`
-                  ? {
-                      backgroundColor: day.color,
-                      color: "#fff",
-                      borderColor: day.color,
-                    }
-                  : {}
-              }
-            >
-              <span
-                className="mr-1.5 inline-block h-2 w-2 shrink-0 rounded-full"
-                style={
-                  activeTab === `day${day.day}`
-                    ? { backgroundColor: "rgba(255,255,255,0.7)" }
-                    : { backgroundColor: day.color }
-                }
-              />
-              <span className="text-center leading-tight">
-                6/{day.day} · {DAY_LABELS[i]}
-              </span>
-            </TabsTrigger>
-          ))}
-          <TabsTrigger
-            value="info"
-            className="data-[state=active]:bg-foreground data-[state=active]:text-background data-[state=inactive]:bg-muted data-[state=inactive]:text-muted-foreground rounded-full px-3 py-1.5 text-xs font-medium whitespace-nowrap transition-all data-[state=active]:shadow-sm md:px-4 md:text-sm"
-          >
-            🧳 준비물 &amp; 경비
-          </TabsTrigger>
-          <TabsTrigger
-            value="airport"
-            className="data-[state=active]:bg-foreground data-[state=active]:text-background data-[state=inactive]:bg-muted data-[state=inactive]:text-muted-foreground rounded-full px-3 py-1.5 text-xs font-medium whitespace-nowrap transition-all data-[state=active]:shadow-sm md:px-4 md:text-sm"
-          >
-            ✈️ 공항 가이드
-          </TabsTrigger>
-        </TabsList>
-      </div>
-
-      {DAYS.map((day) => (
-        <TabsContent
-          key={`day${day.day}`}
-          value={`day${day.day}`}
-          className="mt-6"
+    <div className="flex flex-col gap-6">
+      <MapSection spots={ALL_SPOTS} color="#6366f1" />
+      <Tabs value={activeTab} onValueChange={handleValueChange}>
+        <div
+          ref={containerRef}
+          className="cursor-grab [scrollbar-width:none] overflow-x-auto overflow-y-hidden select-none active:cursor-grabbing [&::-webkit-scrollbar]:hidden"
+          style={{
+            maskImage:
+              mask === "both"
+                ? "linear-gradient(to right, transparent 0%, black 5%, black 95%, transparent 100%)"
+                : mask === "left"
+                  ? "linear-gradient(to right, transparent 0%, black 5%)"
+                  : mask === "right"
+                    ? "linear-gradient(to right, black 95%, transparent 100%)"
+                    : undefined,
+          }}
+          onMouseDown={handleMouseDown}
+          onMouseMove={handleMouseMove}
+          onMouseUp={handleMouseUp}
+          onMouseLeave={handleMouseUp}
+          onClick={handleContainerClick}
         >
-          <DaySection day={day} isActive={activeTab === `day${day.day}`} />
+          <TabsList className="gap-1.5 bg-transparent px-0 py-1 group-data-horizontal/tabs:h-auto">
+            {CATEGORY_GROUPS.map((group) => (
+              <TabsTrigger
+                key={group.value}
+                value={group.value}
+                className="data-[state=active]:bg-foreground data-[state=active]:text-background data-[state=inactive]:bg-muted data-[state=inactive]:text-muted-foreground rounded-full px-3 py-1.5 text-xs font-medium whitespace-nowrap transition-all data-[state=active]:shadow-sm md:px-4 md:text-sm"
+              >
+                {group.icon} {group.label}
+              </TabsTrigger>
+            ))}
+            <TabsTrigger
+              value="checklist"
+              className="data-[state=active]:bg-foreground data-[state=active]:text-background data-[state=inactive]:bg-muted data-[state=inactive]:text-muted-foreground rounded-full px-3 py-1.5 text-xs font-medium whitespace-nowrap transition-all data-[state=active]:shadow-sm md:px-4 md:text-sm"
+            >
+              🧳 준비물
+            </TabsTrigger>
+            <TabsTrigger
+              value="expense"
+              className="data-[state=active]:bg-foreground data-[state=active]:text-background data-[state=inactive]:bg-muted data-[state=inactive]:text-muted-foreground rounded-full px-3 py-1.5 text-xs font-medium whitespace-nowrap transition-all data-[state=active]:shadow-sm md:px-4 md:text-sm"
+            >
+              💴 경비
+            </TabsTrigger>
+            <TabsTrigger
+              value="airport"
+              className="data-[state=active]:bg-foreground data-[state=active]:text-background data-[state=inactive]:bg-muted data-[state=inactive]:text-muted-foreground rounded-full px-3 py-1.5 text-xs font-medium whitespace-nowrap transition-all data-[state=active]:shadow-sm md:px-4 md:text-sm"
+            >
+              ✈️ 공항 가이드
+            </TabsTrigger>
+          </TabsList>
+        </div>
+
+        {CATEGORY_GROUPS.map((group) => (
+          <TabsContent key={group.value} value={group.value} className="mt-6">
+            <CategoryTab
+              items={ALL_ITEMS.filter((item) =>
+                group.categories.includes(item.category),
+              )}
+            />
+          </TabsContent>
+        ))}
+
+        <TabsContent value="checklist" className="mt-6">
+          <ChecklistTab />
         </TabsContent>
-      ))}
 
-      <TabsContent value="info" className="mt-6 flex flex-col gap-8">
-        <ChecklistTab />
-        <ExpenseTab />
-      </TabsContent>
+        <TabsContent value="expense" className="mt-6">
+          <ExpenseTab />
+        </TabsContent>
 
-      <TabsContent value="airport" className="mt-6">
-        <AirportTab />
-      </TabsContent>
-    </Tabs>
+        <TabsContent value="airport" className="mt-6">
+          <AirportTab />
+        </TabsContent>
+      </Tabs>
+    </div>
   );
 }

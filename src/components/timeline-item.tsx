@@ -12,7 +12,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Textarea } from "@/components/ui/textarea";
-import type { Category, TripItem } from "@/lib/types";
+import type { TripItem } from "@/lib/types";
 import { cn } from "@/lib/utils";
 import { useTripStore } from "@/store/trip-store";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -29,59 +29,26 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 
-const CATEGORY_STYLE: Record<Category, { label: string; className: string }> = {
-  move: {
-    label: "🚌 이동",
-    className: "bg-sky-100 text-sky-700 dark:bg-sky-950 dark:text-sky-300",
-  },
-  sight: {
-    label: "🏛️ 관광",
-    className:
-      "bg-violet-100 text-violet-700 dark:bg-violet-950 dark:text-violet-300",
-  },
-  sight2: {
-    label: "🌿 관광",
-    className:
-      "bg-emerald-100 text-emerald-700 dark:bg-emerald-950 dark:text-emerald-300",
-  },
-  food: {
-    label: "🍜 식사",
-    className:
-      "bg-orange-100 text-orange-700 dark:bg-orange-950 dark:text-orange-300",
-  },
-  hot: {
-    label: "♨️ 온천",
-    className: "bg-rose-100 text-rose-700 dark:bg-rose-950 dark:text-rose-300",
-  },
-  sleep: {
-    label: "🛏 숙박",
-    className:
-      "bg-indigo-100 text-indigo-700 dark:bg-indigo-950 dark:text-indigo-300",
-  },
-};
-
 const memoSchema = z.object({
   memo: z.string().max(500, "500자 이하로 입력해주세요"),
 });
 type MemoForm = z.infer<typeof memoSchema>;
 
-interface TimelineItemProps {
+interface PlaceCardProps {
   item: TripItem;
-  dayColor: string;
-  collapseKey: number;
-  expandKey: number;
-  memoCollapseKey: number;
-  memoExpandKey: number;
+  collapseKey?: number;
+  expandKey?: number;
+  memoCollapseKey?: number;
+  memoExpandKey?: number;
 }
 
-export function TimelineItem({
+export function PlaceCard({
   item,
-  dayColor,
-  collapseKey,
-  expandKey,
-  memoCollapseKey,
-  memoExpandKey,
-}: TimelineItemProps) {
+  collapseKey = 0,
+  expandKey = 0,
+  memoCollapseKey = 0,
+  memoExpandKey = 0,
+}: PlaceCardProps) {
   const isDone = useTripStore((s) => s.states[item.id]?.is_done ?? false);
   const isPending = useTripStore((s) => !!s.pendingItems[item.id]);
   const savedMemo = useTripStore((s) => s.personalStates[item.id]?.memo ?? "");
@@ -150,16 +117,8 @@ export function TimelineItem({
     setDeleteOpen(false);
   }, [item.id, upsertPersonal, setValue]);
 
-  const cat = CATEGORY_STYLE[item.category];
-
   return (
-    <div className="relative pl-7">
-      {/* timeline dot */}
-      <span
-        className="border-background absolute top-5 left-px h-3 w-3 rounded-full border-2 transition-colors duration-300"
-        style={{ backgroundColor: isDone ? "#9ca3af" : dayColor }}
-      />
-
+    <>
       <Card
         className={cn(
           "cursor-pointer transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md",
@@ -169,28 +128,18 @@ export function TimelineItem({
       >
         <CardContent>
           <div className="flex flex-col gap-1.5">
-            <div className="flex items-start justify-between gap-2">
-              <span className="text-muted-foreground pt-0.5 text-xs font-semibold tabular-nums">
-                {item.time}
-              </span>
-              <div className="flex items-center gap-1.5">
-                {isDone && (
-                  <Badge className="gap-1 rounded-full bg-green-500/15 text-[11px] font-bold text-green-600 dark:text-green-400">
-                    <CheckCircle2 className="h-3 w-3" />
-                    완료
-                  </Badge>
-                )}
-                <Badge
-                  className={cn(
-                    "rounded-full text-[11px] font-semibold",
-                    cat.className,
-                  )}
-                >
-                  {item.name.includes("→") || item.category === "move"
-                    ? item.name.split(" ")[0]
-                    : cat.label}
+            <div className="flex items-center gap-1.5">
+              {isDone && (
+                <Badge className="gap-1 rounded-full bg-green-500/15 text-[11px] font-bold text-green-600 dark:text-green-400">
+                  <CheckCircle2 className="h-3 w-3" />
+                  완료
                 </Badge>
-              </div>
+              )}
+              {item.badge && (
+                <Badge className="bg-muted text-muted-foreground rounded-full text-[11px] font-semibold">
+                  {item.badge}
+                </Badge>
+              )}
             </div>
 
             <p
@@ -286,10 +235,7 @@ export function TimelineItem({
               )}
             >
               <div className="min-h-0 overflow-hidden">
-                <div
-                  className="bg-muted/50 text-muted-foreground mt-2 rounded-r-lg border-l-2 p-2.5 text-xs leading-relaxed"
-                  style={{ borderColor: dayColor }}
-                >
+                <div className="bg-muted/50 text-muted-foreground border-muted-foreground/30 mt-2 rounded-r-lg border-l-2 p-2.5 text-xs leading-relaxed">
                   {item.tip}
                 </div>
               </div>
@@ -338,6 +284,6 @@ export function TimelineItem({
           </DialogFooter>
         </DialogContent>
       </Dialog>
-    </div>
+    </>
   );
 }

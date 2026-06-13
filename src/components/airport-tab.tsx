@@ -8,24 +8,13 @@ import {
 } from "@/components/ui/accordion";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
-import { AIRPORT_BLOCKS, AIRPORT_NOTE } from "@/lib/airport-data";
+import { AIRPORT_BLOCKS, TRAVEL_TIPS } from "@/lib/trip-data";
 import { cn } from "@/lib/utils";
 import { Info } from "lucide-react";
 
 export function AirportTab() {
   return (
     <div className="flex flex-col gap-5">
-      {/* Info card */}
-      <Card className="bg-muted/40">
-        <CardContent className="flex gap-3 px-4 py-3.5">
-          <Info className="text-muted-foreground h-4 w-4 shrink-0 self-start" />
-          <div className="flex flex-col gap-0.5">
-            <p className="font-semibold">{AIRPORT_NOTE.title}</p>
-            <p className="text-muted-foreground text-sm">{AIRPORT_NOTE.body}</p>
-          </div>
-        </CardContent>
-      </Card>
-
       {/* Accordion */}
       <Accordion type="multiple" className="flex flex-col gap-2">
         {AIRPORT_BLOCKS.map((block, idx) => (
@@ -81,6 +70,24 @@ export function AirportTab() {
           </AccordionItem>
         ))}
       </Accordion>
+
+      {/* Travel Tips */}
+      <div className="flex flex-col gap-2">
+        <p className="text-muted-foreground px-1 text-xs font-semibold tracking-wide uppercase">
+          알아두면 좋은 팁
+        </p>
+        {TRAVEL_TIPS.map((tip) => (
+          <Card key={tip.title} className="bg-muted/40">
+            <CardContent className="flex gap-3 px-4 py-3.5">
+              <Info className="text-muted-foreground mt-0.5 h-4 w-4 shrink-0" />
+              <div className="flex flex-col gap-0.5">
+                <p className="font-semibold">{tip.title}</p>
+                <p className="text-muted-foreground text-sm">{tip.body}</p>
+              </div>
+            </CardContent>
+          </Card>
+        ))}
+      </div>
     </div>
   );
 }
