@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <rect width="512" height="512" rx="96" fill="#18181b"/>
+  <!-- outer ring -->
+  <circle cx="256" cy="256" r="150" fill="none" stroke="white" stroke-width="13"/>
+  <!-- cardinal tick marks (N/S/E/W, straddling the ring) -->
+  <line x1="256" y1="86"  x2="256" y2="126" stroke="white" stroke-width="15" stroke-linecap="round"/>
+  <line x1="256" y1="386" x2="256" y2="426" stroke="white" stroke-width="15" stroke-linecap="round"/>
+  <line x1="386" y1="256" x2="426" y2="256" stroke="white" stroke-width="15" stroke-linecap="round"/>
+  <line x1="86"  y1="256" x2="126" y2="256" stroke="white" stroke-width="15" stroke-linecap="round"/>
+  <!-- needle (45° NE) — north half bright, south half dim -->
+  <polygon points="324,189 269,269 243,243" fill="white"/>
+  <polygon points="189,324 269,269 243,243" fill="rgba(255,255,255,0.35)"/>
+  <!-- center pivot -->
+  <circle cx="256" cy="256" r="9" fill="white"/>
+</svg>
