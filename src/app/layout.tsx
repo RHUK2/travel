@@ -1,4 +1,3 @@
-import { AddToHomeScreenBanner } from "@/components/add-to-homescreen-banner";
 import { QueryProvider } from "@/components/query-provider";
 import { TRIP_DESCRIPTION, TRIP_NAME } from "@/lib/trip-data";
 import type { Metadata, Viewport } from "next";
@@ -53,7 +52,6 @@ export default function RootLayout({
         >
           <QueryProvider>{children}</QueryProvider>
           <Toaster position="top-center" richColors />
-          <AddToHomeScreenBanner />
         </ThemeProvider>
       </body>
     </html>
