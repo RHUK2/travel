@@ -44,14 +44,7 @@ export default function RootLayout({
       className={`${pretendard.variable} ${tossface.variable}`}
       suppressHydrationWarning
     >
-      <head>
-        {/* Leaflet CSS */}
-        <link
-          rel="stylesheet"
-          href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
-        />
-      </head>
-      <body className="bg-background antialiased">
+<body className="bg-background antialiased">
         <ThemeProvider
           attribute="class"
           defaultTheme="system"

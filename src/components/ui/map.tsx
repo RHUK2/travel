@@ -1,4 +1,5 @@
 "use client";
+/* eslint-disable react-hooks/refs */
 
 import { cn } from "@/lib/utils";
 import type * as GeoJSON from "geojson";
@@ -224,9 +225,7 @@ const Map = forwardRef<MapRef, MapProps>(function Map(
       container: containerRef.current,
       style: initialStyle,
       renderWorldCopies: false,
-      attributionControl: {
-        compact: true,
-      },
+      attributionControl: false,
       ...props,
       ...viewport,
     });

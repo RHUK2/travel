@@ -10,7 +10,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Separator } from "@/components/ui/separator";
 import { EXPENSE_NOTE, EXPENSE_ROWS } from "@/lib/trip-data";
 import type { ExpenseRow } from "@/lib/types";
 import { useTripStore } from "@/store/trip-store";
