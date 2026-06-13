@@ -39,11 +39,18 @@ export async function POST(req: NextRequest) {
     );
   }
 
-  return NextResponse.json({
+  const sessionData = {
     id: participant.id,
     name: participant.name,
     token,
     photo_url: participant.photo_url ?? "",
     message: participant.message ?? "",
-  });
+  };
+
+  const cookieValue = encodeURIComponent(JSON.stringify(sessionData));
+  const cookieHeader = `travel_session=${cookieValue}; Max-Age=${365 * 24 * 60 * 60}; Path=/; SameSite=Lax`;
+
+  const response = NextResponse.json(sessionData);
+  response.headers.set("Set-Cookie", cookieHeader);
+  return response;
 }

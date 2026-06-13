@@ -14,7 +14,7 @@ import {
 import { ThemeToggle } from "./theme-toggle";
 import { ParticipantsStrip } from "./participants-strip";
 import { CloudShape } from "./cloud-shape";
-import { SESSION_KEY } from "@/lib/constants";
+import { deleteSessionCookie } from "@/lib/session-cookie";
 import {
   TRIP_DATES,
   TRIP_LOCATION,
@@ -27,7 +27,7 @@ export function Hero() {
   const [confirmOpen, setConfirmOpen] = useState(false);
 
   const handleLogout = () => {
-    localStorage.removeItem(SESSION_KEY);
+    deleteSessionCookie();
     window.location.reload();
   };
 

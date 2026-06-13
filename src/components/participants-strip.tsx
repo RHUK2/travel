@@ -19,7 +19,10 @@ import {
   fetchParticipants,
   type Participant,
 } from "@/lib/participants-queries";
-import { SESSION_KEY } from "@/lib/constants";
+import {
+  deleteSessionCookie,
+  getSessionCookie,
+} from "@/lib/session-cookie";
 function ParticipantAvatar({
   p,
   isMe,
@@ -93,7 +96,7 @@ function ResetDialog({
     setError("");
 
     if (isMe) {
-      const stored = localStorage.getItem(SESSION_KEY);
+      const stored = getSessionCookie();
       const userId = stored ? JSON.parse(stored).id : null;
       const res = await fetch("/api/participants/reset-self", {
         method: "POST",
@@ -105,7 +108,7 @@ function ResetDialog({
         setError("오류가 발생했습니다");
         return;
       }
-      localStorage.removeItem(SESSION_KEY);
+      deleteSessionCookie();
       window.location.reload();
       return;
     }
@@ -178,7 +181,7 @@ function ResetDialog({
 export function ParticipantsStrip() {
   const queryClient = useQueryClient();
   const stored =
-    typeof window !== "undefined" ? localStorage.getItem(SESSION_KEY) : null;
+    typeof window !== "undefined" ? getSessionCookie() : null;
   const myId = stored ? JSON.parse(stored).id : "";
 
   const [resetTarget, setResetTarget] = useState<Participant | null>(null);

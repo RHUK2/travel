@@ -7,7 +7,7 @@ import { fetchItemStates } from "@/lib/queries";
 import { fetchPersonalStates } from "@/lib/personal-queries";
 import { useTripStore } from "@/store/trip-store";
 import type { ItemState, PersonalState } from "@/lib/types";
-import { SESSION_KEY } from "@/lib/constants";
+import { getSessionCookie } from "@/lib/session-cookie";
 
 export function RealtimeProvider({ children }: { children: React.ReactNode }) {
   const {
@@ -20,7 +20,7 @@ export function RealtimeProvider({ children }: { children: React.ReactNode }) {
   } = useTripStore();
 
   useEffect(() => {
-    const stored = localStorage.getItem(SESSION_KEY);
+    const stored = getSessionCookie();
     if (stored) {
       setCurrentUser(JSON.parse(stored));
     }

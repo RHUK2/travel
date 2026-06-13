@@ -9,7 +9,11 @@ import {
   InputGroupText,
 } from "@/components/ui/input-group";
 import { CloudShape } from "@/components/cloud-shape";
-import { SESSION_KEY } from "@/lib/constants";
+import {
+  deleteSessionCookie,
+  getSessionCookie,
+  setSessionCookie,
+} from "@/lib/session-cookie";
 import {
   updateParticipantProfile,
   uploadAvatar,
@@ -275,7 +279,7 @@ function ProfileStep({
       message: data.message,
       photo_url: patch.photo_url ?? session.photo_url,
     };
-    localStorage.setItem(SESSION_KEY, JSON.stringify(updated));
+    setSessionCookie(JSON.stringify(updated));
     onComplete();
   };
 
@@ -357,7 +361,7 @@ export function PasscodeGate({ children }: { children: React.ReactNode }) {
   const [session, setSession] = useState<Session | null>(null);
 
   useEffect(() => {
-    const stored = localStorage.getItem(SESSION_KEY);
+    const stored = getSessionCookie();
     if (!stored) {
       // eslint-disable-next-line react-hooks/set-state-in-effect
       setStep("login");
@@ -371,7 +375,7 @@ export function PasscodeGate({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     if (!session) return;
     const logout = () => {
-      localStorage.removeItem(SESSION_KEY);
+      deleteSessionCookie();
       setSession(null);
       setStep("login");
     };
@@ -450,7 +454,7 @@ export function PasscodeGate({ children }: { children: React.ReactNode }) {
   if (step === "done") return <>{children}</>;
 
   const handleLoginSuccess = (s: Session) => {
-    localStorage.setItem(SESSION_KEY, JSON.stringify(s));
+    setSessionCookie(JSON.stringify(s));
     setSession(s);
     setStep(s.photo_url && s.message ? "done" : "profile");
   };

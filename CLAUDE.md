@@ -42,7 +42,7 @@ Next.js 16 / React 19 PWA — 그룹 여행용 동반 앱. 한국어 UI. Tailwin
 ### 컴포넌트 트리
 
 ```text
-PasscodeGate          ← 패스코드 로그인, Session을 localStorage에 저장 (SESSION_KEY)
+PasscodeGate          ← 패스코드 로그인, Session을 쿠키에 저장 (travel_session, 365일 만료)
   RealtimeProvider    ← TanStack Query 초기 패치 + Supabase 실시간 구독
     Hero
     TripTabs          ← 메인 탭 네비게이션, 활성 탭은 localStorage에 유지 (TAB_KEY)
@@ -59,8 +59,8 @@ PasscodeGate          ← 패스코드 로그인, Session을 localStorage에 저
 
 ### 주요 상수
 
-- `SESSION_KEY = "travel_session"` — 로그인된 Session 객체를 저장하는 localStorage 키
 - `TAB_KEY = "japan_active_tab"` — 활성 탭을 저장하는 localStorage 키
+- `travel_session` 쿠키 — 로그인된 Session JSON. `src/lib/session-cookie.ts`의 `getSessionCookie` / `setSessionCookie` / `deleteSessionCookie`로 관리. 로그인 시 서버(`/api/login`)가 `Set-Cookie`로 설정하고, 이후 클라이언트에서도 업데이트한다.
 - `Category` 타입: `"move" | "sight" | "sight2" | "food" | "hot" | "sleep" | "shop" | "etc"`
 - `CATEGORY_GROUPS` (`trip-tabs.tsx`) — 탭 값과 `Category` 배열의 매핑 (예: `"sight"` 탭은 `sight`, `sight2`, `hot` 포함)
 
