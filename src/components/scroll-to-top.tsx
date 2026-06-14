@@ -19,8 +19,9 @@ export function ScrollToTop() {
       aria-label="맨 위로 이동"
       size="icon"
       onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
+      style={{ right: "max(calc((100vw - 42rem) / 2 + 1rem), 1rem)" }}
       className={cn(
-        "fixed right-6 bottom-6 z-50 h-12 w-12 rounded-full shadow-lg transition-all duration-200 hover:scale-110 hover:shadow-xl",
+        "fixed bottom-6 z-50 h-12 w-12 rounded-full shadow-lg transition-[transform,opacity] duration-200 hover:scale-110 hover:shadow-xl",
         visible
           ? "translate-y-0 opacity-100"
           : "pointer-events-none translate-y-4 opacity-0",

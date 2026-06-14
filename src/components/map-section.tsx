@@ -2,6 +2,7 @@
 
 import { useRef } from "react";
 import { LocateFixed } from "lucide-react";
+import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import {
   Map,
@@ -15,9 +16,10 @@ import type { MapSpot } from "@/lib/types";
 interface MapSectionProps {
   spots: MapSpot[];
   color: string;
+  className?: string;
 }
 
-export function MapSection({ spots, color }: MapSectionProps) {
+export function MapSection({ spots, color, className }: MapSectionProps) {
   const mapRef = useRef<MapRef>(null);
 
   const uniqueSpots = spots.filter(
@@ -45,8 +47,8 @@ export function MapSection({ spots, color }: MapSectionProps) {
   };
 
   return (
-    <div className="overflow-hidden rounded-xl border">
-      <div className="relative isolate h-[300px]">
+    <div className={cn("overflow-hidden rounded-xl border", className)}>
+      <div className="relative isolate h-full min-h-[300px]">
         <Map
           ref={mapRef}
           bounds={initialBounds}

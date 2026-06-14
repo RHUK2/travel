@@ -5,6 +5,8 @@ import { TAB_KEY } from "@/lib/constants";
 import { DAYS } from "@/lib/trip-data";
 import type { Category } from "@/lib/types";
 import { useEffect, useRef, useState } from "react";
+import { X } from "lucide-react";
+import { Button } from "@/components/ui/button";
 import { AirportTab } from "./airport-tab";
 import { CategoryTab } from "./category-tab";
 import { ChecklistTab } from "./checklist-tab";
@@ -36,6 +38,7 @@ const ALL_ITEMS = DAYS.flatMap((day) => day.items);
 const ALL_SPOTS = DAYS.flatMap((day) => day.mapSpots);
 
 export function TripTabs() {
+  const [mapOpen, setMapOpen] = useState(false);
   const [activeTab, setActiveTab] = useState(() => {
     if (typeof window === "undefined") return DEFAULT_TAB;
     return localStorage.getItem(TAB_KEY) ?? DEFAULT_TAB;
@@ -117,12 +120,29 @@ export function TripTabs() {
   };
 
   return (
+    <>
+      {mapOpen && (
+        <div className="fixed inset-0 z-50 flex flex-col bg-background">
+          <div className="flex h-12 shrink-0 items-center justify-between border-b bg-background/80 px-4 backdrop-blur-sm">
+            <span className="text-sm font-medium">지도</span>
+            <Button variant="ghost" size="icon" onClick={() => setMapOpen(false)}>
+              <X className="h-4 w-4" />
+            </Button>
+          </div>
+          <div className="flex-1 overflow-hidden">
+            <MapSection
+              spots={ALL_SPOTS}
+              color="#6366f1"
+              className="h-full rounded-none border-0"
+            />
+          </div>
+        </div>
+      )}
     <div className="flex flex-col gap-6">
-      <MapSection spots={ALL_SPOTS} color="#6366f1" />
       <Tabs value={activeTab} onValueChange={handleValueChange}>
         <div
-          ref={containerRef}
-          className="cursor-grab [scrollbar-width:none] overflow-x-auto overflow-y-hidden select-none active:cursor-grabbing [&::-webkit-scrollbar]:hidden"
+            ref={containerRef}
+            className="cursor-grab [scrollbar-width:none] overflow-x-auto overflow-y-hidden select-none active:cursor-grabbing [&::-webkit-scrollbar]:hidden"
           style={{
             maskImage:
               mask === "both"
@@ -176,6 +196,7 @@ export function TripTabs() {
               items={ALL_ITEMS.filter((item) =>
                 group.categories.includes(item.category),
               )}
+              onMapOpen={() => setMapOpen(true)}
             />
           </TabsContent>
         ))}
@@ -193,5 +214,6 @@ export function TripTabs() {
         </TabsContent>
       </Tabs>
     </div>
+    </>
   );
 }
