@@ -87,7 +87,10 @@ function ResetDialog({
       // eslint-disable-next-line react-hooks/set-state-in-effect
       setPassword("");
       setError("");
-      if (!isMe) setTimeout(() => inputRef.current?.focus(), 50);
+      if (!isMe) {
+        const id = setTimeout(() => inputRef.current?.focus(), 50);
+        return () => clearTimeout(id);
+      }
     }
   }, [target, isMe]);
 
