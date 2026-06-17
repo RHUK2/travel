@@ -19,10 +19,7 @@ import {
   fetchParticipants,
   type Participant,
 } from "@/lib/participants-queries";
-import {
-  deleteSessionCookie,
-  getSessionCookie,
-} from "@/lib/session-cookie";
+import { deleteSessionCookie, getSessionCookie } from "@/lib/session-cookie";
 function ParticipantAvatar({
   p,
   isMe,
@@ -183,8 +180,7 @@ function ResetDialog({
 
 export function ParticipantsStrip() {
   const queryClient = useQueryClient();
-  const stored =
-    typeof window !== "undefined" ? getSessionCookie() : null;
+  const stored = typeof window !== "undefined" ? getSessionCookie() : null;
   const myId = stored ? JSON.parse(stored).id : "";
 
   const [resetTarget, setResetTarget] = useState<Participant | null>(null);

@@ -23,7 +23,15 @@ import { TRIP_LOCATION, TRIP_NAME, TRIP_SUBTITLE } from "@/lib/trip-data";
 import type { Session } from "@/lib/types";
 import { cn } from "@/lib/utils";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Camera, Download, Lock, MapPin, MessageSquare, Share, User } from "lucide-react";
+import {
+  Camera,
+  Download,
+  Lock,
+  MapPin,
+  MessageSquare,
+  Share,
+  User,
+} from "lucide-react";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
@@ -169,10 +177,10 @@ function InstallBanner() {
       <div className="bg-background/60 mb-4 rounded-2xl border p-4 backdrop-blur-sm">
         <p className="text-sm font-medium">앱으로 설치해서 사용하기</p>
         <p className="text-muted-foreground mt-1 text-xs">
-          하단{" "}
-          <Share size={11} className="-mt-0.5 inline" />{" "}
-          공유 버튼 → <strong>홈 화면에 추가</strong>를 탭하면
-          <br />앱처럼 편하게 사용할 수 있어요.
+          하단 <Share size={11} className="-mt-0.5 inline" /> 공유 버튼 →{" "}
+          <strong>홈 화면에 추가</strong>를 탭하면
+          <br />
+          앱처럼 편하게 사용할 수 있어요.
         </p>
       </div>
     );
@@ -526,38 +534,42 @@ export function PasscodeGate({ children }: { children: React.ReactNode }) {
       <Background isDark={isDark} />
 
       <div className="relative z-10 flex h-full flex-col items-center justify-center px-4 py-12">
-      <div className="w-full max-w-sm">
-        <div className="mb-8 text-center">
-          <p className="text-muted-foreground mb-2 inline-flex items-center gap-1.5 text-xs font-semibold tracking-[3px] uppercase">
-            <MapPin className="h-3 w-3" />
-            {TRIP_LOCATION}
-          </p>
-          <h1 className="text-3xl font-bold tracking-tight">{TRIP_NAME}</h1>
-          <p className="text-muted-foreground/70 mt-1 text-sm font-medium tracking-[4px] uppercase">
-            {TRIP_SUBTITLE}
-          </p>
-        </div>
-
-        {step === "login" && <InstallBanner />}
-
-        <div className="bg-background/80 rounded-2xl border p-6 shadow-xl backdrop-blur-sm">
-          {step === "login" && <LoginStep onSuccess={handleLoginSuccess} />}
-          {step === "profile" && session && (
-            <ProfileStep session={session} onComplete={() => setStep("done")} />
-          )}
-        </div>
-
-        {step === "login" && (
-          <div className="mt-3 rounded-xl border border-amber-200 bg-amber-50/80 px-4 py-3 dark:border-amber-800/50 dark:bg-amber-900/20">
-            <p className="text-amber-800 dark:text-amber-300 text-xs font-medium">
-              로그인이 계속 풀리나요?
+        <div className="w-full max-w-sm">
+          <div className="mb-8 text-center">
+            <p className="text-muted-foreground mb-2 inline-flex items-center gap-1.5 text-xs font-semibold tracking-[3px] uppercase">
+              <MapPin className="h-3 w-3" />
+              {TRIP_LOCATION}
             </p>
-            <p className="text-amber-700/80 dark:text-amber-400/80 mt-0.5 text-xs">
-              브라우저 설정에서 &apos;종료 시 데이터 삭제&apos; 옵션을 꺼주세요.
+            <h1 className="text-3xl font-bold tracking-tight">{TRIP_NAME}</h1>
+            <p className="text-muted-foreground/70 mt-1 text-sm font-medium tracking-[4px] uppercase">
+              {TRIP_SUBTITLE}
             </p>
           </div>
-        )}
-      </div>
+
+          {step === "login" && <InstallBanner />}
+
+          <div className="bg-background/80 rounded-2xl border p-6 shadow-xl backdrop-blur-sm">
+            {step === "login" && <LoginStep onSuccess={handleLoginSuccess} />}
+            {step === "profile" && session && (
+              <ProfileStep
+                session={session}
+                onComplete={() => setStep("done")}
+              />
+            )}
+          </div>
+
+          {step === "login" && (
+            <div className="mt-3 rounded-xl border border-amber-200 bg-amber-50/80 px-4 py-3 dark:border-amber-800/50 dark:bg-amber-900/20">
+              <p className="text-xs font-medium text-amber-800 dark:text-amber-300">
+                로그인이 계속 풀리나요?
+              </p>
+              <p className="mt-0.5 text-xs text-amber-700/80 dark:text-amber-400/80">
+                브라우저 설정에서 &apos;종료 시 데이터 삭제&apos; 옵션을
+                꺼주세요.
+              </p>
+            </div>
+          )}
+        </div>
       </div>
     </div>
   );

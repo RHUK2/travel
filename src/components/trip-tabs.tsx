@@ -122,10 +122,14 @@ export function TripTabs() {
   return (
     <>
       {mapOpen && (
-        <div className="fixed inset-0 z-50 flex flex-col bg-background">
-          <div className="flex h-12 shrink-0 items-center justify-between border-b bg-background/80 px-4 backdrop-blur-sm">
+        <div className="bg-background fixed inset-0 z-50 flex flex-col">
+          <div className="bg-background/80 flex h-12 shrink-0 items-center justify-between border-b px-4 backdrop-blur-sm">
             <span className="text-sm font-medium">지도</span>
-            <Button variant="ghost" size="icon" onClick={() => setMapOpen(false)}>
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={() => setMapOpen(false)}
+            >
               <X className="h-4 w-4" />
             </Button>
           </div>
@@ -138,82 +142,82 @@ export function TripTabs() {
           </div>
         </div>
       )}
-    <div className="flex flex-col gap-6">
-      <Tabs value={activeTab} onValueChange={handleValueChange}>
-        <div
+      <div className="flex flex-col gap-6">
+        <Tabs value={activeTab} onValueChange={handleValueChange}>
+          <div
             ref={containerRef}
             className="cursor-grab [scrollbar-width:none] overflow-x-auto overflow-y-hidden select-none active:cursor-grabbing [&::-webkit-scrollbar]:hidden"
-          style={{
-            maskImage:
-              mask === "both"
-                ? "linear-gradient(to right, transparent 0%, black 5%, black 95%, transparent 100%)"
-                : mask === "left"
-                  ? "linear-gradient(to right, transparent 0%, black 5%)"
-                  : mask === "right"
-                    ? "linear-gradient(to right, black 95%, transparent 100%)"
-                    : undefined,
-          }}
-          onMouseDown={handleMouseDown}
-          onMouseMove={handleMouseMove}
-          onMouseUp={handleMouseUp}
-          onMouseLeave={handleMouseUp}
-          onClick={handleContainerClick}
-        >
-          <TabsList className="gap-1.5 bg-transparent px-0 py-1 group-data-horizontal/tabs:h-auto">
-            {CATEGORY_GROUPS.map((group) => (
+            style={{
+              maskImage:
+                mask === "both"
+                  ? "linear-gradient(to right, transparent 0%, black 5%, black 95%, transparent 100%)"
+                  : mask === "left"
+                    ? "linear-gradient(to right, transparent 0%, black 5%)"
+                    : mask === "right"
+                      ? "linear-gradient(to right, black 95%, transparent 100%)"
+                      : undefined,
+            }}
+            onMouseDown={handleMouseDown}
+            onMouseMove={handleMouseMove}
+            onMouseUp={handleMouseUp}
+            onMouseLeave={handleMouseUp}
+            onClick={handleContainerClick}
+          >
+            <TabsList className="gap-1.5 bg-transparent px-0 py-1 group-data-horizontal/tabs:h-auto">
+              {CATEGORY_GROUPS.map((group) => (
+                <TabsTrigger
+                  key={group.value}
+                  value={group.value}
+                  className="data-[state=active]:bg-foreground data-[state=active]:text-background data-[state=inactive]:bg-muted data-[state=inactive]:text-muted-foreground rounded-full px-3 py-1.5 text-xs font-medium whitespace-nowrap transition-all data-[state=active]:shadow-sm md:px-4 md:text-sm"
+                >
+                  {group.icon} {group.label}
+                </TabsTrigger>
+              ))}
               <TabsTrigger
-                key={group.value}
-                value={group.value}
+                value="checklist"
                 className="data-[state=active]:bg-foreground data-[state=active]:text-background data-[state=inactive]:bg-muted data-[state=inactive]:text-muted-foreground rounded-full px-3 py-1.5 text-xs font-medium whitespace-nowrap transition-all data-[state=active]:shadow-sm md:px-4 md:text-sm"
               >
-                {group.icon} {group.label}
+                🧳 준비물
               </TabsTrigger>
-            ))}
-            <TabsTrigger
-              value="checklist"
-              className="data-[state=active]:bg-foreground data-[state=active]:text-background data-[state=inactive]:bg-muted data-[state=inactive]:text-muted-foreground rounded-full px-3 py-1.5 text-xs font-medium whitespace-nowrap transition-all data-[state=active]:shadow-sm md:px-4 md:text-sm"
-            >
-              🧳 준비물
-            </TabsTrigger>
-            <TabsTrigger
-              value="expense"
-              className="data-[state=active]:bg-foreground data-[state=active]:text-background data-[state=inactive]:bg-muted data-[state=inactive]:text-muted-foreground rounded-full px-3 py-1.5 text-xs font-medium whitespace-nowrap transition-all data-[state=active]:shadow-sm md:px-4 md:text-sm"
-            >
-              💴 경비
-            </TabsTrigger>
-            <TabsTrigger
-              value="airport"
-              className="data-[state=active]:bg-foreground data-[state=active]:text-background data-[state=inactive]:bg-muted data-[state=inactive]:text-muted-foreground rounded-full px-3 py-1.5 text-xs font-medium whitespace-nowrap transition-all data-[state=active]:shadow-sm md:px-4 md:text-sm"
-            >
-              ✈️ 공항 가이드
-            </TabsTrigger>
-          </TabsList>
-        </div>
+              <TabsTrigger
+                value="expense"
+                className="data-[state=active]:bg-foreground data-[state=active]:text-background data-[state=inactive]:bg-muted data-[state=inactive]:text-muted-foreground rounded-full px-3 py-1.5 text-xs font-medium whitespace-nowrap transition-all data-[state=active]:shadow-sm md:px-4 md:text-sm"
+              >
+                💴 경비
+              </TabsTrigger>
+              <TabsTrigger
+                value="airport"
+                className="data-[state=active]:bg-foreground data-[state=active]:text-background data-[state=inactive]:bg-muted data-[state=inactive]:text-muted-foreground rounded-full px-3 py-1.5 text-xs font-medium whitespace-nowrap transition-all data-[state=active]:shadow-sm md:px-4 md:text-sm"
+              >
+                ✈️ 공항 가이드
+              </TabsTrigger>
+            </TabsList>
+          </div>
 
-        {CATEGORY_GROUPS.map((group) => (
-          <TabsContent key={group.value} value={group.value} className="mt-6">
-            <CategoryTab
-              items={ALL_ITEMS.filter((item) =>
-                group.categories.includes(item.category),
-              )}
-              onMapOpen={() => setMapOpen(true)}
-            />
+          {CATEGORY_GROUPS.map((group) => (
+            <TabsContent key={group.value} value={group.value} className="mt-6">
+              <CategoryTab
+                items={ALL_ITEMS.filter((item) =>
+                  group.categories.includes(item.category),
+                )}
+                onMapOpen={() => setMapOpen(true)}
+              />
+            </TabsContent>
+          ))}
+
+          <TabsContent value="checklist" className="mt-6">
+            <ChecklistTab />
           </TabsContent>
-        ))}
 
-        <TabsContent value="checklist" className="mt-6">
-          <ChecklistTab />
-        </TabsContent>
+          <TabsContent value="expense" className="mt-6">
+            <ExpenseTab />
+          </TabsContent>
 
-        <TabsContent value="expense" className="mt-6">
-          <ExpenseTab />
-        </TabsContent>
-
-        <TabsContent value="airport" className="mt-6">
-          <AirportTab />
-        </TabsContent>
-      </Tabs>
-    </div>
+          <TabsContent value="airport" className="mt-6">
+            <AirportTab />
+          </TabsContent>
+        </Tabs>
+      </div>
     </>
   );
 }

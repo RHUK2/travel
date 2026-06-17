@@ -33,7 +33,12 @@ interface CategoryTabProps {
 
 function useScrollDrag() {
   const ref = useRef<HTMLDivElement>(null);
-  const drag = useRef({ active: false, startX: 0, scrollLeft: 0, moved: false });
+  const drag = useRef({
+    active: false,
+    startX: 0,
+    scrollLeft: 0,
+    moved: false,
+  });
   const [mask, setMask] = useState<"none" | "left" | "right" | "both">("none");
 
   const updateMask = () => {
@@ -64,7 +69,12 @@ function useScrollDrag() {
     onMouseDown: (e: React.MouseEvent) => {
       const el = ref.current;
       if (!el) return;
-      drag.current = { active: true, startX: e.pageX - el.offsetLeft, scrollLeft: el.scrollLeft, moved: false };
+      drag.current = {
+        active: true,
+        startX: e.pageX - el.offsetLeft,
+        scrollLeft: el.scrollLeft,
+        moved: false,
+      };
     },
     onMouseMove: (e: React.MouseEvent) => {
       if (!drag.current.active) return;
@@ -75,8 +85,12 @@ function useScrollDrag() {
       if (Math.abs(walk) > 4) drag.current.moved = true;
       el.scrollLeft = drag.current.scrollLeft - walk;
     },
-    onMouseUp: () => { drag.current.active = false; },
-    onMouseLeave: () => { drag.current.active = false; },
+    onMouseUp: () => {
+      drag.current.active = false;
+    },
+    onMouseLeave: () => {
+      drag.current.active = false;
+    },
     onClickCapture: (e: React.MouseEvent) => {
       if (drag.current.moved) {
         e.stopPropagation();
@@ -110,8 +124,16 @@ export function CategoryTab({ items, onMapOpen }: CategoryTabProps) {
   const [sortOrder, setSortOrder] = useState<SortOrder>("name_asc");
   const [filterMode, setFilterMode] = useState<FilterMode>("all");
 
-  const { ref: actionRef, handlers: actionHandlers, maskStyle: actionMaskStyle } = useScrollDrag();
-  const { ref: filterRef, handlers: filterHandlers, maskStyle: filterMaskStyle } = useScrollDrag();
+  const {
+    ref: actionRef,
+    handlers: actionHandlers,
+    maskStyle: actionMaskStyle,
+  } = useScrollDrag();
+  const {
+    ref: filterRef,
+    handlers: filterHandlers,
+    maskStyle: filterMaskStyle,
+  } = useScrollDrag();
 
   const { personalStates, upsertPersonal, states } = useTripStore();
 
@@ -165,11 +187,11 @@ export function CategoryTab({ items, onMapOpen }: CategoryTabProps) {
       {/* 액션 버튼 바 */}
       <div
         ref={actionRef}
-        className="cursor-grab select-none overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden border-b pb-3 active:cursor-grabbing"
+        className="cursor-grab [scrollbar-width:none] overflow-x-auto border-b pb-3 select-none active:cursor-grabbing [&::-webkit-scrollbar]:hidden"
         style={actionMaskStyle}
         {...actionHandlers}
       >
-        <div className="flex items-center gap-1 w-max">
+        <div className="flex w-max items-center gap-1">
           {onMapOpen && (
             <>
               <Button
@@ -225,11 +247,11 @@ export function CategoryTab({ items, onMapOpen }: CategoryTabProps) {
       {/* 정렬 / 필터 바 */}
       <div
         ref={filterRef}
-        className="cursor-grab select-none overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden border-b pb-3 active:cursor-grabbing"
+        className="cursor-grab [scrollbar-width:none] overflow-x-auto border-b pb-3 select-none active:cursor-grabbing [&::-webkit-scrollbar]:hidden"
         style={filterMaskStyle}
         {...filterHandlers}
       >
-        <div className="flex items-center gap-1 w-max">
+        <div className="flex w-max items-center gap-1">
           <Button
             variant={sortOrder === "name_asc" ? "secondary" : "outline"}
             size="sm"

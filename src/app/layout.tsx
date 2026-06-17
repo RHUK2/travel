@@ -1,5 +1,6 @@
 import { QueryProvider } from "@/components/query-provider";
 import { TRIP_DESCRIPTION, TRIP_NAME } from "@/lib/trip-data";
+import { cn } from "@/lib/utils";
 import type { Metadata, Viewport } from "next";
 import { ThemeProvider } from "next-themes";
 import localFont from "next/font/local";
@@ -40,10 +41,10 @@ export default function RootLayout({
   return (
     <html
       lang="ko"
-      className={`${pretendard.variable} ${tossface.variable}`}
+      className={cn(pretendard.variable, tossface.variable)}
       suppressHydrationWarning
     >
-<body className="bg-background antialiased">
+      <body className="bg-background antialiased">
         <ThemeProvider
           attribute="class"
           defaultTheme="system"
