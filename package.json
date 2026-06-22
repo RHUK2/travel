@@ -3,8 +3,10 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "rm -rf .next && next dev",
+    "dev": "next dev",
+    "dev:clean": "rm -rf .next && next dev",
     "doctor": "npx -y react-doctor@latest .",
+    "doctor:changed": "npx -y react-doctor@latest . --scope changed",
     "type": "tsc --noEmit",
     "lint": "eslint . --max-warnings 10",
     "prebuild": "pnpm run type && pnpm run lint",
